@@ -1,8 +1,16 @@
+#include "arena.h"
+#include "constants.h"
+#include "player.h"
 #include <ncurses.h>
 #include <time.h>
-#include "arena.h"
-#include "player.h"
-#include "constants.h"
+
+#define KEY_A 97
+#define KEY_S 115
+#define KEY_D 100
+#define KEY_W 119
+#define KEY_Q 113
+#define KEY_P 112
+#define KEY_R 114
 
 size_t my_strlen(char *str) {
     char *ptr = str;
@@ -19,10 +27,10 @@ size_t my_strlen(char *str) {
 typedef struct {
     bool is_pause;
     bool is_running;
-	bool is_winning;
+    bool is_winning;
 } Game;
 
-void input(Player *);
+void input(Player *, Arena *);
 
 void update(void);
 
@@ -32,13 +40,17 @@ void init(void);
 
 void close(void);
 
+void restart(Arena *, Player *);
+
+void pause(char *message, int key_unpause);
+
 double getCurrentTime(void);
 
 WINDOW *win;
 
 Game game = {false, true};
 
-Player player = {{5, 5}, {0, 1}, '*', 4, 0};
+Player player = {{5, 5}, {0, 1}, 'o', 4, 0};
 Player *p_player = &player;
 
 Arena arena = {{0, 0},
@@ -71,7 +83,7 @@ int main(int argc, char **argv) {
         double elapsed = current - previous;
         previous = current;
         lag += elapsed;
-        input(p_player);
+        input(p_player, p_arena);
 
         while (lag >= MS_PER_UPDATE) {
             if (!game.is_pause) {
@@ -90,7 +102,7 @@ int main(int argc, char **argv) {
 }
 
 void init() {
-    setArena(p_arena);
+    getMaxScore(p_arena);
     /* Curses stuff */
     win = initscr();
     start_color();
@@ -100,7 +112,7 @@ void init() {
     curs_set(0);
     cbreak();
     noecho();
-    intrflush(win, false);
+    /*intrflush(win, false);*/
     keypad(win, true);
     nodelay(win, true);
 }
@@ -112,17 +124,42 @@ void close() {
     endwin();
 }
 
+void restart(Arena *arena, Player *player) {
+    substituteArena(arena, EMPTY, POINT);
+    player->score = 0;
+}
+
+void pause(char *message, int key_unpause) {
+    while (true) {
+        int key = wgetch(win);
+        if (key == key_unpause) {
+            break;
+        }
+        mvwprintw(win, (arena.pos.y + arena.lines) / 2,
+                  (arena.pos.x + arena.cols) / 2, "%s", message);
+        mvwprintw(win, (arena.pos.y + arena.lines) / 2 + 1,
+                  (arena.pos.x + arena.cols) / 2, "Press R to restart");
+    }
+}
+
 void update() {
+    if (player.score >= arena.max_score) {
+        game.is_winning = true;
+        pause("You WIN!", KEY_R);
+        restart(p_arena, p_player);
+    }
     player.pos.x += player.vel.x;
     player.pos.y += player.vel.y;
-    playerCollisionX(p_player, p_arena);
-    playerCollisionY(p_player, p_arena);
+
+    if (playerCollisionX(p_player, p_arena)) {
+        player.pos.x -= player.vel.x;
+    };
+    if (playerCollisionY(p_player, p_arena)) {
+        player.pos.y -= player.vel.y;
+    }
     if (arena.matrix[player.pos.y][player.pos.x] == POINT) {
         player.score++;
         arena.matrix[player.pos.y][player.pos.x] = EMPTY;
-    }
-    if (player.score >= arena.max_score) {
-		game.is_winning = true;
     }
 }
 
@@ -130,41 +167,47 @@ char *message = "Score: ";
 void draw(Arena *arena, Player *player) {
     erase();
     mvwprintw(win, arena->lines + 1,
-              (int)arena->pos.x / 2 + my_strlen(message) / 2, "%s%i | %li",
+              (int)arena->pos.x / 2 + my_strlen(message) / 2, "%s%i | %i",
               message, player->score, arena->max_score);
     drawArena(win, arena);
     mvwaddch(win, arena->pos.y + player->pos.y,
              arena->pos.x + player->pos.x * OFFSET, player->ch);
     if (game.is_pause) {
-        mvwprintw(win, (int)arena->pos.x / 2, (int)arena->lines / 2, "is_pause");
+        mvwprintw(win, (int)arena->pos.x / 2, (int)arena->lines / 2,
+                  "is_pause");
     }
 }
-void input(Player *player) {
+
+void input(Player *player, Arena *arena) {
     int key = wgetch(win);
     switch (key) {
-    case 113: /* q */
+    case KEY_Q:
         game.is_running = false;
         break;
-    case 112:
+    case KEY_P:
         game.is_pause = !game.is_pause;
         break;
     case KEY_RIGHT:
-    case 100:
+    case KEY_D:
+        player->ch = '>';
         player->vel.x = RIGHT;
         player->vel.y = 0;
         break;
     case KEY_LEFT:
-    case 97:
+    case KEY_A:
+        player->ch = '<';
         player->vel.x = LEFT;
         player->vel.y = 0;
         break;
     case KEY_UP:
-    case 119:
+    case KEY_W:
+        player->ch = '^';
         player->vel.y = UP;
         player->vel.x = 0;
         break;
     case KEY_DOWN:
-    case 115:
+    case KEY_S:
+        player->ch = 'V';
         player->vel.y = DOWN;
         player->vel.x = 0;
         break;

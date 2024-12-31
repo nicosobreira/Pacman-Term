@@ -25,6 +25,7 @@ void drawArena(WINDOW *, Arena *);
 
 void setMatrix(int sx, int sy, int *matrix[sx][sy], int *values[sx][sy]);
 
-void setArena(Arena *);
+void getMaxScore(Arena *arena);
 
+void substituteArena(Arena *arena, int match, int subst);
 #endif

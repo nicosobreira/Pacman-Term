@@ -17,8 +17,12 @@ typedef struct {
     int score;
 } Player;
 
-void playerCollisionX(Player *, Arena *);
+bool playerCollisionX(Player *, Arena *);
 
-void playerCollisionY(Player *, Arena *);
+bool playerCollisionY(Player *, Arena *);
+
+bool playerMovementX(int direction, Player *, Arena *);
+
+bool playerMovementY(int direction, Player *, Arena *);
 
 #endif

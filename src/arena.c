@@ -28,11 +28,21 @@ void drawArena(WINDOW *win, Arena *arena) {
     }
 }
 
-void setArena(Arena *arena) {
+void getMaxScore(Arena *arena) {
     for (int i = 0; i < arena->lines; i++) {
         for (int j = 0; j < arena->cols; j++) {
             if (arena->matrix[i][j] == POINT) {
                 arena->max_score++;
+            }
+        }
+    }
+}
+
+void substituteArena(Arena *arena, int match, int subst) {
+    for (int i = 0; i < arena->lines; i++) {
+        for (int j = 0; j < arena->cols; j++) {
+            if (arena->matrix[i][j] == match) {
+                arena->matrix[i][j] = subst;
             }
         }
     }
