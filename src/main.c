@@ -5,33 +5,43 @@
 #define ARENA_LINES 10
 #define ARENA_COLS 10
 #define EMPTY 0
+#define WALL 1
 
-const double MS_PER_UPDATE = (double)1000 / 60;
+#define LEFT -1
+#define RIGHT 1
+#define UP -1
+#define DOWN 1
+
+const double MS_PER_UPDATE = (double)1 / 7;
+/*const double MS_PER_UPDATE = (double)1 / 60;*/
 
 typedef struct {
     int x;
     int y;
+} Vector;
+
+typedef struct {
+    Vector pos;
+    Vector vel;
     int ch;
     int color;
-    int velocity;
 } Player;
 
 typedef struct {
-    int x;
-    int y;
-    const int sx;
-    const int sy;
+    Vector pos;
+    int lines;
+    int cols;
     int matrix[ARENA_LINES][ARENA_COLS];
 } Arena;
 
 WINDOW *win;
-int is_running;
+bool is_running;
 
-Player player = {5, 5, '*', 0, 1};
+Player player = {{5, 5}, {0, 1}, '*', 1};
+Player *p_player = &player;
 
 Arena arena = {
-    0,
-    0,
+    {0, 0},
     ARENA_LINES,
     ARENA_COLS,
     /* clang-format off */
@@ -49,16 +59,17 @@ Arena arena = {
 	}
     /* clang-format on */
 };
+Arena *p_arena = &arena;
 
 void printMatrix(int lines, int cols, int matrix[lines][cols], int x, int y);
 
 void setMatrix(int sx, int sy, int *matrix[sx][sy], int *values[sx][sy]);
 
-void playerCollisionX(int direction);
+void playerCollisionX(Player *, Arena *);
 
-void playerCollisionY(int direction);
+void playerCollisionY(Player *, Arena *);
 
-void input(void);
+void input(Player *);
 
 void update(void);
 
@@ -79,8 +90,8 @@ int main(int argc, char **argv) {
         double current = getCurrentTime();
         double elapsed = current - previous;
         previous = current;
-        lag += elapsed * 1000;
-        input();
+        lag += elapsed;
+        input(p_player);
 
         while (lag >= MS_PER_UPDATE) {
             update();
@@ -88,6 +99,9 @@ int main(int argc, char **argv) {
         }
 
         draw();
+        /*mvwprintw(win, 0, 0, "fps: %f", MS_PER_UPDATE);*/
+        /*mvwprintw(win, 1, 0, "elapsed: %f", elapsed);*/
+        /*mvwprintw(win, 2, 0, "lag: %f", lag);*/
     }
     close();
     return 0;
@@ -110,9 +124,10 @@ void close() {
     endwin();
 }
 
-void setMatrix(int sx, int sy, int *matrix[sx][sy], int *values[sx][sy]) {
-    for (int i; i < sy; i++) {
-        for (int j; j < sx; j++) {
+void setMatrix(int cols, int lines, int *matrix[cols][lines],
+               int *values[cols][lines]) {
+    for (int i; i < lines; i++) {
+        for (int j; j < cols; j++) {
             matrix[i][j] = values[i][j];
         }
     }
@@ -120,16 +135,19 @@ void setMatrix(int sx, int sy, int *matrix[sx][sy], int *values[sx][sy]) {
 
 double getCurrentTime() { return (double)clock() / CLOCKS_PER_SEC; }
 
-void update() {}
+void update() {
+    player.pos.x += player.vel.x;
+    player.pos.y += player.vel.y;
+    playerCollisionX(p_player, p_arena);
+    playerCollisionY(p_player, p_arena);
+}
 
 void draw() {
     erase();
-    printMatrix(ARENA_LINES, ARENA_COLS, arena.matrix, arena.y, arena.x);
-    mvwaddch(win, arena.x + player.y, arena.x + player.x * OFFSET, player.ch);
-
-    /* Debug */
-    /*mvwprintw(win, 0, 0, "fps: %f", MS_PER_UPDATE);*/
-    /*mvwprintw(win, 1, 0, "time in ms: %f", getCurrentTime());*/
+    printMatrix(ARENA_LINES, ARENA_COLS, arena.matrix, arena.pos.y,
+                arena.pos.x);
+    mvwaddch(win, arena.pos.x + player.pos.y,
+             arena.pos.x + player.pos.x * OFFSET, player.ch);
 }
 void printMatrix(int lines, int cols, int matrix[lines][cols], int y, int x) {
     for (int i = 0; i < lines; i++) {
@@ -141,19 +159,23 @@ void printMatrix(int lines, int cols, int matrix[lines][cols], int y, int x) {
     }
 }
 
-void playerCollisionX(int direction) {
-    if (arena.matrix[player.y][player.x + direction] == EMPTY) {
-        player.x += direction;
+void playerCollisionX(Player *player, Arena *arena) {
+    if (player->pos.x < arena->cols && player->pos.x > 0 &&
+        arena->matrix[player->pos.y][player->pos.x] != WALL) {
+        return;
     }
+    player->pos.x -= player->vel.x;
 }
 
-void playerCollisionY(int direction) {
-    if (arena.matrix[player.y + direction][player.x] == EMPTY) {
-        player.y += direction;
+void playerCollisionY(Player *player, Arena *arena) {
+    if (player->pos.y < arena->lines && player->pos.y >= 0 &&
+        arena->matrix[player->pos.y][player->pos.x] != WALL) {
+        return;
     }
+    player->pos.y -= player->vel.y;
 }
 
-void input() {
+void input(Player *player) {
     int key = wgetch(win);
     switch (key) {
     case 113: /* q */
@@ -161,19 +183,23 @@ void input() {
         break;
     case KEY_RIGHT:
     case 100:
-        playerCollisionX(player.velocity);
+        player->vel.x = RIGHT;
+        player->vel.y = 0;
         break;
     case KEY_LEFT:
     case 97:
-        playerCollisionX(-player.velocity);
+        player->vel.x = LEFT;
+        player->vel.y = 0;
         break;
     case KEY_UP:
     case 119:
-        playerCollisionY(-player.velocity);
+        player->vel.y = UP;
+        player->vel.x = 0;
         break;
     case KEY_DOWN:
     case 115:
-        playerCollisionY(player.velocity);
+        player->vel.y = DOWN;
+        player->vel.x = 0;
         break;
     }
 }
