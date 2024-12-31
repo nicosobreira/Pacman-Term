@@ -21,8 +21,8 @@ bool playerCollisionX(Player *, Arena *);
 
 bool playerCollisionY(Player *, Arena *);
 
-bool playerMovementX(int direction, Player *, Arena *);
+bool playerMovementX(Player *, Arena *);
 
-bool playerMovementY(int direction, Player *, Arena *);
+bool playerMovementY(Player *, Arena *);
 
 #endif
