@@ -107,8 +107,9 @@ void init() {
     win = initscr();
     start_color();
     init_pair(EMPTY + 1, 0, 0);
-    init_pair(WALL + 1, 4, 0);
-    init_pair(POINT + 1, 3, 0);
+    init_pair(WALL + 1, 5, 0);
+    init_pair(POINT + 1, 7, 0);
+    init_pair(4, 3, 0);
     curs_set(0);
     cbreak();
     noecho();
@@ -170,8 +171,10 @@ void draw(Arena *arena, Player *player) {
               (int)arena->pos.x / 2 + my_strlen(message) / 2, "%s%i | %i",
               message, player->score, arena->max_score);
     drawArena(win, arena);
+    SET_COLOR_ON(4);
     mvwaddch(win, arena->pos.y + player->pos.y,
              arena->pos.x + player->pos.x * OFFSET, player->ch);
+    SET_COLOR_OFF(4);
     if (game.is_pause) {
         mvwprintw(win, (int)arena->pos.x / 2, (int)arena->lines / 2,
                   "is_pause");
