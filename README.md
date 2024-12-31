@@ -3,6 +3,7 @@
 ## TODO
 
 - [ ] Create the point system (little dots on the ground)
-- [ ] Add **colors**!
+- [x] Add *colors*!
     - **Yellow** for the points
     - **Purple** for the walls
+- [ ] Add ghost's (**I HAVE NO IDEA**)
