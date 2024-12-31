@@ -1,79 +1,32 @@
-#include <curses.h>
+#include <ncurses.h>
 #include <time.h>
+#include "arena.h"
+#include "player.h"
+#include "constants.h"
 
-#define OFFSET 2
-#define ARENA_LINES 10
-#define ARENA_COLS 10
-#define EMPTY 0
-#define WALL 1
+size_t my_strlen(char *str) {
+    char *ptr = str;
+    unsigned int len = 0;
 
-#define LEFT -1
-#define RIGHT 1
-#define UP -1
-#define DOWN 1
+    while (*ptr != '\0') {
+        len++;
+        ptr++;
+    }
 
-const double MS_PER_UPDATE = (double)1 / 7;
-/*const double MS_PER_UPDATE = (double)1 / 60;*/
-
-typedef struct {
-    int x;
-    int y;
-} Vector;
+    return len;
+}
 
 typedef struct {
-    Vector pos;
-    Vector vel;
-    int ch;
-    int color;
-} Player;
-
-typedef struct {
-    Vector pos;
-    int lines;
-    int cols;
-    int matrix[ARENA_LINES][ARENA_COLS];
-} Arena;
-
-WINDOW *win;
-bool is_running;
-
-Player player = {{5, 5}, {0, 1}, '*', 1};
-Player *p_player = &player;
-
-Arena arena = {
-    {0, 0},
-    ARENA_LINES,
-    ARENA_COLS,
-    /* clang-format off */
-	{
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-		{0, 1, 1, 1, 0, 1, 1, 1, 1, 0},
-		{0, 1, 0, 0, 0, 0, 0, 0, 1, 0},
-		{0, 1, 0, 1, 1, 0, 1, 0, 1, 0},
-		{0, 1, 0, 1, 0, 0, 1, 0, 1, 0},
-		{0, 0, 0, 1, 0, 0, 1, 0, 0, 0},
-		{0, 1, 0, 1, 1, 1, 1, 0, 1, 0},
-		{0, 1, 0, 0, 0, 0, 0, 0, 1, 0},
-		{0, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-	}
-    /* clang-format on */
-};
-Arena *p_arena = &arena;
-
-void printMatrix(int lines, int cols, int matrix[lines][cols], int x, int y);
-
-void setMatrix(int sx, int sy, int *matrix[sx][sy], int *values[sx][sy]);
-
-void playerCollisionX(Player *, Arena *);
-
-void playerCollisionY(Player *, Arena *);
+    bool is_pause;
+    bool is_running;
+	bool is_winning;
+} Game;
 
 void input(Player *);
 
 void update(void);
 
-void draw(void);
+void draw(Arena *, Player *);
 
 void init(void);
 
@@ -81,12 +34,39 @@ void close(void);
 
 double getCurrentTime(void);
 
+WINDOW *win;
+
+Game game = {false, true};
+
+Player player = {{5, 5}, {0, 1}, '*', 4, 0};
+Player *p_player = &player;
+
+Arena arena = {{0, 0},
+               ARENA_LINES,
+               ARENA_COLS,
+               {
+                   /* clang-format off */
+{2, 2, 2, 2, 2, 2, 2, 2, 2, 2},
+{2, 1, 1, 1, 2, 1, 1, 1, 1, 2},
+{2, 1, 2, 2, 2, 2, 2, 2, 1, 2},
+{2, 1, 2, 1, 1, 2, 1, 2, 1, 2},
+{2, 1, 2, 1, 2, 2, 1, 2, 1, 2},
+{2, 2, 2, 1, 2, 2, 1, 2, 2, 2},
+{2, 1, 2, 1, 1, 1, 1, 2, 1, 2},
+{2, 1, 2, 2, 2, 2, 2, 2, 1, 2},
+{2, 1, 1, 1, 1, 1, 1, 1, 1, 2},
+{2, 2, 2, 2, 2, 2, 2, 2, 2, 2}
+                   /* clang-format on */
+               },
+               0};
+Arena *p_arena = &arena;
+
 int main(int argc, char **argv) {
     init();
-    is_running = true;
+    game.is_running = true;
     double lag = 0.0;
     double previous = getCurrentTime();
-    while (is_running) {
+    while (game.is_running) {
         double current = getCurrentTime();
         double elapsed = current - previous;
         previous = current;
@@ -94,11 +74,13 @@ int main(int argc, char **argv) {
         input(p_player);
 
         while (lag >= MS_PER_UPDATE) {
-            update();
+            if (!game.is_pause) {
+                update();
+            }
             lag -= MS_PER_UPDATE;
         }
 
-        draw();
+        draw(p_arena, p_player);
         /*mvwprintw(win, 0, 0, "fps: %f", MS_PER_UPDATE);*/
         /*mvwprintw(win, 1, 0, "elapsed: %f", elapsed);*/
         /*mvwprintw(win, 2, 0, "lag: %f", lag);*/
@@ -108,11 +90,17 @@ int main(int argc, char **argv) {
 }
 
 void init() {
+    setArena(p_arena);
+    /* Curses stuff */
     win = initscr();
+    start_color();
+    init_pair(EMPTY + 1, 0, 0);
+    init_pair(WALL + 1, 4, 0);
+    init_pair(POINT + 1, 3, 0);
     curs_set(0);
     cbreak();
     noecho();
-    /*intrflush(win, false);*/
+    intrflush(win, false);
     keypad(win, true);
     nodelay(win, true);
 }
@@ -124,62 +112,41 @@ void close() {
     endwin();
 }
 
-void setMatrix(int cols, int lines, int *matrix[cols][lines],
-               int *values[cols][lines]) {
-    for (int i; i < lines; i++) {
-        for (int j; j < cols; j++) {
-            matrix[i][j] = values[i][j];
-        }
-    }
-}
-
-double getCurrentTime() { return (double)clock() / CLOCKS_PER_SEC; }
-
 void update() {
     player.pos.x += player.vel.x;
     player.pos.y += player.vel.y;
     playerCollisionX(p_player, p_arena);
     playerCollisionY(p_player, p_arena);
+    if (arena.matrix[player.pos.y][player.pos.x] == POINT) {
+        player.score++;
+        arena.matrix[player.pos.y][player.pos.x] = EMPTY;
+    }
+    if (player.score >= arena.max_score) {
+		game.is_winning = true;
+    }
 }
 
-void draw() {
+char *message = "Score: ";
+void draw(Arena *arena, Player *player) {
     erase();
-    printMatrix(ARENA_LINES, ARENA_COLS, arena.matrix, arena.pos.y,
-                arena.pos.x);
-    mvwaddch(win, arena.pos.x + player.pos.y,
-             arena.pos.x + player.pos.x * OFFSET, player.ch);
-}
-void printMatrix(int lines, int cols, int matrix[lines][cols], int y, int x) {
-    for (int i = 0; i < lines; i++) {
-        for (int j = 0; j < cols; j++) {
-            if (matrix[i][j] != EMPTY) {
-                mvwaddch(win, i + y, j * OFFSET + x, matrix[i][j] + '0');
-            }
-        }
+    mvwprintw(win, arena->lines + 1,
+              (int)arena->pos.x / 2 + my_strlen(message) / 2, "%s%i | %li",
+              message, player->score, arena->max_score);
+    drawArena(win, arena);
+    mvwaddch(win, arena->pos.y + player->pos.y,
+             arena->pos.x + player->pos.x * OFFSET, player->ch);
+    if (game.is_pause) {
+        mvwprintw(win, (int)arena->pos.x / 2, (int)arena->lines / 2, "is_pause");
     }
 }
-
-void playerCollisionX(Player *player, Arena *arena) {
-    if (player->pos.x < arena->cols && player->pos.x > 0 &&
-        arena->matrix[player->pos.y][player->pos.x] != WALL) {
-        return;
-    }
-    player->pos.x -= player->vel.x;
-}
-
-void playerCollisionY(Player *player, Arena *arena) {
-    if (player->pos.y < arena->lines && player->pos.y >= 0 &&
-        arena->matrix[player->pos.y][player->pos.x] != WALL) {
-        return;
-    }
-    player->pos.y -= player->vel.y;
-}
-
 void input(Player *player) {
     int key = wgetch(win);
     switch (key) {
     case 113: /* q */
-        is_running = false;
+        game.is_running = false;
+        break;
+    case 112:
+        game.is_pause = !game.is_pause;
         break;
     case KEY_RIGHT:
     case 100:
@@ -203,3 +170,5 @@ void input(Player *player) {
         break;
     }
 }
+
+double getCurrentTime() { return (double)clock() / CLOCKS_PER_SEC; }
