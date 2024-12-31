@@ -18,11 +18,11 @@ void drawArena(WINDOW *win, Arena *arena) {
     for (int i = 0; i < arena->lines; i++) {
         for (int j = 0; j < arena->cols; j++) {
             value = &arena->matrix[i][j];
-            if (value != EMPTY) {
-                attron(COLOR_PAIR(*value + 1));
+            if (*value != EMPTY) {
+                SET_COLOR_ON(*value + 1);
                 mvwaddch(win, i + arena->pos.y, arena->pos.x + j * OFFSET,
                          ARENA_CHARS[*value]);
-                attroff(COLOR_PAIR(*value + 1));
+                SET_COLOR_OFF(*value + 1);
             }
         }
     }
