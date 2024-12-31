@@ -16,15 +16,15 @@ bool playerCollisionY(Player *player, Arena *arena) {
     return false;
 }
 
-bool playerMovementX(int direction, Player *player, Arena *arena) {
-    if (arena->matrix[direction + player->pos.x][player->pos.y] == WALL) {
+bool playerMovementY(Player *player, Arena *arena) {
+    if (arena->matrix[player->pos.x][player->pos.y + player->pos.y] == WALL) {
         return true;
     }
     return false;
 }
 
-bool playerMovementY(int direction, Player *player, Arena *arena) {
-    if (arena->matrix[player->pos.x][direction + player->pos.y] == WALL) {
+bool playerMovementX(Player *player, Arena *arena) {
+    if (arena->matrix[player->pos.x + player->vel.x][player->pos.y] == WALL) {
         return true;
     }
     return false;
