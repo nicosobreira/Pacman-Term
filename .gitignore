@@ -1,6 +1,7 @@
 # Custom
 *.vim
-build/
+build/*
+test/
 
 # Prerequisites
 *.d
