@@ -1,6 +1,7 @@
 #include "arena.h"
 #include "constants.h"
 #include "player.h"
+#include "vector.h"
 #include <ncurses.h>
 #include <time.h>
 
@@ -48,12 +49,15 @@ double getCurrentTime(void);
 
 WINDOW *win;
 
-Game game = {false, true};
+Vector middle;
 
-Player player = {{5, 5}, {0, 1}, 'o', 4, 0};
+Game game = {false, true, false};
+
+Player player = {{0, 0}, {0, 1}, 'o', 4, 0};
 Player *p_player = &player;
 
 Arena arena = {{0, 0},
+               {0, 0},
                ARENA_LINES,
                ARENA_COLS,
                {
@@ -72,6 +76,7 @@ Arena arena = {{0, 0},
                },
                0};
 Arena *p_arena = &arena;
+Vector arena_middle;
 
 int main(int argc, char **argv) {
     init();
@@ -105,6 +110,12 @@ void init() {
     getMaxScore(p_arena);
     /* Curses stuff */
     win = initscr();
+    middle.x = (int)COLS / 2;
+    middle.y = (int)LINES / 2;
+    arena.middle.x = (int)ARENA_COLS / 2;
+    arena.middle.y = (int)ARENA_LINES / 2;
+    player.pos.x = arena.middle.x;
+    player.pos.y = arena.middle.y;
     start_color();
     init_pair(EMPTY + 1, 0, 0);
     init_pair(WALL + 1, 5, 0);
@@ -118,16 +129,13 @@ void init() {
     nodelay(win, true);
 }
 
-void close() {
-    curs_set(1);
-    nocbreak();
-    echo();
-    endwin();
-}
+void close() { endwin(); }
 
 void restart(Arena *arena, Player *player) {
     substituteArena(arena, EMPTY, POINT);
     player->score = 0;
+    player->pos.x = arena->middle.x;
+    player->pos.y = arena->middle.y;
 }
 
 void pause(char *message, int key_unpause) {
@@ -164,9 +172,9 @@ void update() {
     }
 }
 
-char *message = "Score: ";
 void draw(Arena *arena, Player *player) {
     erase();
+    char *message = "Score: ";
     mvwprintw(win, arena->lines + 1,
               (int)arena->pos.x / 2 + my_strlen(message) / 2, "%s%i | %i",
               message, player->score, arena->max_score);
@@ -210,7 +218,7 @@ void input(Player *player, Arena *arena) {
         break;
     case KEY_DOWN:
     case KEY_S:
-        player->ch = 'V';
+        player->ch = 'v';
         player->vel.y = DOWN;
         player->vel.x = 0;
         break;
