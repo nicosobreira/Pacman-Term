@@ -28,5 +28,8 @@ void setMatrix(int sx, int sy, int *matrix[sx][sy], int *values[sx][sy]);
 
 void getMaxScore(Arena *arena);
 
+Arena loadArena(char *file_name);
+
 void substituteArena(Arena *arena, int match, int subst);
+
 #endif

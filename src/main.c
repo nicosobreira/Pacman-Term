@@ -79,6 +79,7 @@ Arena *p_arena = &arena;
 Vector arena_middle;
 
 int main(int argc, char **argv) {
+    Arena new_arena = loadArena("arenas/1.txt");
     init();
     game.is_running = true;
     double lag = 0.0;
@@ -170,6 +171,7 @@ void update() {
     if (playerCollisionY(p_player, p_arena)) {
         player.pos.y -= player.vel.y;
     }
+
     if (arena.matrix[player.pos.y][player.pos.x] == POINT) {
         player.score++;
         arena.matrix[player.pos.y][player.pos.x] = EMPTY;
