@@ -106,16 +106,20 @@ int main(int argc, char **argv) {
     return 0;
 }
 
+void setMiddle(Arena *arena, Player *player, Vector *middle) {
+    middle->x = (int)COLS / 2;
+    middle->y = (int)LINES / 2;
+    arena->middle.x = (int)ARENA_COLS / 2;
+    arena->middle.y = (int)ARENA_LINES / 2;
+    player->pos.x = arena->middle.x;
+    player->pos.y = arena->middle.y;
+}
+
 void init() {
     getMaxScore(p_arena);
     /* Curses stuff */
     win = initscr();
-    middle.x = (int)COLS / 2;
-    middle.y = (int)LINES / 2;
-    arena.middle.x = (int)ARENA_COLS / 2;
-    arena.middle.y = (int)ARENA_LINES / 2;
-    player.pos.x = arena.middle.x;
-    player.pos.y = arena.middle.y;
+    setMiddle(p_arena, p_player, &middle);
     start_color();
     init_pair(EMPTY + 1, 0, 0);
     init_pair(WALL + 1, 5, 0);
