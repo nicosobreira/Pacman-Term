@@ -7,3 +7,6 @@
     - **Yellow** for the points
     - **Purple** for the walls
 - [ ] Add ghost's (**I HAVE NO IDEA**)
+- [ ] Add multiple arenas
+    - Using text files
+    - Need to load them
