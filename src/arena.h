@@ -15,6 +15,7 @@ extern char DRAW_VALUES[4];
 
 typedef struct {
     Vector pos;
+    Vector middle;
     int lines;
     int cols;
     int matrix[ARENA_LINES][ARENA_COLS];
