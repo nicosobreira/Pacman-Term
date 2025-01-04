@@ -31,7 +31,11 @@ typedef struct {
     bool is_winning;
 } Game;
 
-void input(Player *, Arena *);
+void input();
+
+void inputMenu(int key);
+
+void inputGame(int key, Player *, Arena *);
 
 void update(void);
 
@@ -43,7 +47,9 @@ void close(void);
 
 void restart(Arena *, Player *);
 
-void pause(char *message, int key_unpause);
+void setPosition(Arena *, Player *, Vector *);
+
+void pause(char *message);
 
 double getCurrentTime(void);
 
@@ -60,26 +66,21 @@ Arena arena = {{0, 0},
                {0, 0},
                ARENA_LINES,
                ARENA_COLS,
-               {
-                   /* clang-format off */
-{2, 2, 2, 2, 2, 2, 2, 2, 2, 2},
-{2, 1, 1, 1, 2, 1, 1, 1, 1, 2},
-{2, 1, 2, 2, 2, 2, 2, 2, 1, 2},
-{2, 1, 2, 1, 1, 2, 1, 2, 1, 2},
-{2, 1, 2, 1, 2, 2, 1, 2, 1, 2},
-{2, 2, 2, 1, 2, 2, 1, 2, 2, 2},
-{2, 1, 2, 1, 1, 1, 1, 2, 1, 2},
-{2, 1, 2, 2, 2, 2, 2, 2, 1, 2},
-{2, 1, 1, 1, 1, 1, 1, 1, 1, 2},
-{2, 2, 2, 2, 2, 2, 2, 2, 2, 2}
-                   /* clang-format on */
-               },
-               0};
+               {{2, 2, 2, 2, 2, 2, 2, 2, 2, 2},
+                {2, 1, 1, 1, 2, 1, 1, 1, 1, 2},
+                {2, 1, 2, 2, 2, 2, 2, 2, 1, 2},
+                {2, 1, 2, 1, 1, 2, 1, 2, 1, 2},
+                {2, 1, 2, 1, 2, 2, 1, 2, 1, 2},
+                {2, 2, 2, 1, 2, 2, 1, 2, 2, 2},
+                {2, 1, 2, 1, 1, 1, 1, 2, 1, 2},
+                {2, 1, 2, 2, 2, 2, 2, 2, 1, 2},
+                {2, 1, 1, 1, 1, 1, 1, 1, 1, 2},
+                {2, 2, 2, 2, 2, 2, 2, 2, 2, 2}}};
+
 Arena *p_arena = &arena;
 Vector arena_middle;
 
 int main(int argc, char **argv) {
-    Arena new_arena = loadArena("arenas/1.txt");
     init();
     game.is_running = true;
     double lag = 0.0;
@@ -89,7 +90,7 @@ int main(int argc, char **argv) {
         double elapsed = current - previous;
         previous = current;
         lag += elapsed;
-        input(p_player, p_arena);
+        input();
 
         while (lag >= MS_PER_UPDATE) {
             if (!game.is_pause) {
@@ -99,15 +100,12 @@ int main(int argc, char **argv) {
         }
 
         draw(p_arena, p_player);
-        /*mvwprintw(win, 0, 0, "fps: %f", MS_PER_UPDATE);*/
-        /*mvwprintw(win, 1, 0, "elapsed: %f", elapsed);*/
-        /*mvwprintw(win, 2, 0, "lag: %f", lag);*/
     }
     close();
     return 0;
 }
 
-void setMiddle(Arena *arena, Player *player, Vector *middle) {
+void setPosition(Arena *arena, Player *player, Vector *middle) {
     middle->x = (int)COLS / 2;
     middle->y = (int)LINES / 2;
     arena->middle.x = (int)ARENA_COLS / 2;
@@ -120,7 +118,7 @@ void init() {
     getMaxScore(p_arena);
     /* Curses stuff */
     win = initscr();
-    setMiddle(p_arena, p_player, &middle);
+    setPosition(p_arena, p_player, &middle);
     start_color();
     init_pair(EMPTY + 1, 0, 0);
     init_pair(WALL + 1, 5, 0);
@@ -143,12 +141,11 @@ void restart(Arena *arena, Player *player) {
     player->pos.y = arena->middle.y;
 }
 
-void pause(char *message, int key_unpause) {
-    while (true) {
+void pause(char *message) {
+    erase();
+    while (game.is_pause) {
         int key = wgetch(win);
-        if (key == key_unpause) {
-            break;
-        }
+        inputMenu(key);
         mvwprintw(win, (arena.pos.y + arena.lines) / 2,
                   (arena.pos.x + arena.cols) / 2, "%s", message);
         mvwprintw(win, (arena.pos.y + arena.lines) / 2 + 1,
@@ -157,10 +154,9 @@ void pause(char *message, int key_unpause) {
 }
 
 void update() {
-    if (player.score >= arena.max_score) {
+    if (player.score >= arena.max_score / 2) {
         game.is_winning = true;
-        pause("You WIN!", KEY_R);
-        restart(p_arena, p_player);
+        pause("You WIN!");
     }
     player.pos.x += player.vel.x;
     player.pos.y += player.vel.y;
@@ -195,8 +191,13 @@ void draw(Arena *arena, Player *player) {
     }
 }
 
-void input(Player *player, Arena *arena) {
+void input() {
     int key = wgetch(win);
+    inputMenu(key);
+    inputGame(key, p_player, p_arena);
+}
+
+void inputMenu(int key) {
     switch (key) {
     case KEY_Q:
         game.is_running = false;
@@ -204,6 +205,14 @@ void input(Player *player, Arena *arena) {
     case KEY_P:
         game.is_pause = !game.is_pause;
         break;
+    case KEY_R:
+        restart(p_arena, p_player);
+        break;
+    }
+}
+
+void inputGame(int key, Player *player, Arena *arena) {
+    switch (key) {
     case KEY_RIGHT:
     case KEY_D:
         player->ch = '>';
