@@ -8,26 +8,26 @@ char ARENA_CHARS[] = {' ', '#', '.'};
 
 #define ARENA_SEPARATOR "-"
 
-Arena loadArena(char *file_name) {
-    int buffer_size = 128;
-    char cwd[buffer_size];
-    printf("%s\n", getcwd(cwd, buffer_size));
-    FILE *file = fopen(file_name, "r");
-    if (file == NULL) {
-        printf("Error while loading \"%s\"\n", file_name);
-        exit(1);
-    }
-    char buffer[buffer_size];
-    Arena arena;
-
-    while (fgets(buffer, buffer_size, file)) {
-        printf("%s", buffer);
-    }
-    fclose(file);
-    scanf("");
-
-    return arena;
-}
+/*Arena loadArena(char file_name[]) {*/
+/*    Arena arena;*/
+/*    int buffer_size = 128;*/
+/*    char cwd[buffer_size];*/
+/*    printf("%s\n", getcwd(cwd, buffer_size));*/
+/*    FILE *file = fopen(file_name, "r");*/
+/*    if (file == NULL) {*/
+/*        setMatrix(ARENA_LINES, ARENA_COLS, arena.matrix, fallback_matrix);*/
+/*        return arena;*/
+/*    }*/
+/*    char buffer[buffer_size];*/
+/**/
+/*    while (fgets(buffer, buffer_size, file)) {*/
+/*        printf("%s", buffer);*/
+/*    }*/
+/*    fclose(file);*/
+/*    scanf("");*/
+/**/
+/*    return arena;*/
+/*}*/
 
 void setMatrix(int cols, int lines, int *matrix[cols][lines],
                int *values[cols][lines]) {

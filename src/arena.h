@@ -13,6 +13,8 @@
 
 extern char DRAW_VALUES[4];
 
+extern int fallback_matrix[ARENA_LINES][ARENA_COLS];
+
 typedef struct {
     Vector pos;
     Vector middle;
@@ -28,7 +30,7 @@ void setMatrix(int sx, int sy, int *matrix[sx][sy], int *values[sx][sy]);
 
 void getMaxScore(Arena *arena);
 
-Arena loadArena(char *file_name);
+/*Arena loadArena(char *file_name);*/
 
 void substituteArena(Arena *arena, int match, int subst);
 
