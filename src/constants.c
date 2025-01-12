@@ -1,3 +1,3 @@
 #include "constants.h"
 
-double MS_PER_UPDATE = (double)1 / 7;
+const double MS_PER_UPDATE = (double)1 / 7;
