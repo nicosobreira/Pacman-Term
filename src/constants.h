@@ -1,7 +1,7 @@
+#include <ncurses.h>
+
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
-
-#include <ncurses.h>
 
 #define OFFSET 2
 #define SET_COLOR_ON(color) attron(COLOR_PAIR(color))
