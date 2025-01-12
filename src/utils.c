@@ -11,3 +11,5 @@ unsigned int my_strlen(char *str) {
 
     return len;
 }
+
+double getCurrentTime() { return (double)clock() / CLOCKS_PER_SEC; }

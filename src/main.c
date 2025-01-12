@@ -5,7 +5,6 @@
 #include "utils.h"
 #include "vector.h"
 #include <ncurses.h>
-#include <time.h>
 
 #define KEY_A 97
 #define KEY_S 115
@@ -174,10 +173,6 @@ void draw(Arena *arena, Player *player) {
     mvwaddch(win, arena->pos.y + player->pos.y,
              arena->pos.x + player->pos.x * OFFSET, player->ch);
     SET_COLOR_OFF(4);
-    if (game.is_pause) {
-        mvwprintw(win, (int)arena->pos.x / 2, (int)arena->lines / 2,
-                  "is_pause");
-    }
 }
 
 void input() {
@@ -196,6 +191,7 @@ void inputMenu(int key) {
         pause();
         break;
     case KEY_R:
+        game.is_pause = false;
         restart(p_arena, p_player);
         break;
     }
@@ -229,5 +225,3 @@ void inputGame(int key, Player *player, Arena *arena) {
         break;
     }
 }
-
-double getCurrentTime() { return (double)clock() / CLOCKS_PER_SEC; }
