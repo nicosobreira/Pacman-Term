@@ -1,7 +1,6 @@
 #include "arena.h"
 #include "constants.h"
 #include <ncurses.h>
-#include <stdlib.h>
 #include <unistd.h>
 
 char ARENA_CHARS[] = {' ', '#', '.', 'o'};
