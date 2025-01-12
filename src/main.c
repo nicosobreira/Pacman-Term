@@ -1,6 +1,8 @@
 #include "arena.h"
 #include "constants.h"
+#include "graphics.h"
 #include "player.h"
+#include "utils.h"
 #include "vector.h"
 #include <ncurses.h>
 #include <time.h>
@@ -12,18 +14,6 @@
 #define KEY_Q 113
 #define KEY_P 112
 #define KEY_R 114
-
-size_t my_strlen(char *str) {
-    char *ptr = str;
-    unsigned int len = 0;
-
-    while (*ptr != '\0') {
-        len++;
-        ptr++;
-    }
-
-    return len;
-}
 
 typedef struct {
     bool is_pause;
@@ -49,7 +39,7 @@ void restart(Arena *, Player *);
 
 void setPosition(Arena *, Player *, Vector *);
 
-void pause(char *message);
+void pause(void);
 
 double getCurrentTime(void);
 
@@ -92,9 +82,7 @@ int main(int argc, char **argv) {
         input();
 
         while (lag >= MS_PER_UPDATE) {
-            if (!game.is_pause) {
-                update();
-            }
+            update();
             lag -= MS_PER_UPDATE;
         }
 
@@ -114,8 +102,8 @@ void setPosition(Arena *arena, Player *player, Vector *middle) {
 }
 
 void init() {
-    getMaxScore(p_arena);
     game.is_running = true;
+    getMaxScore(p_arena);
     /* Curses stuff */
     win = initscr();
     setPosition(p_arena, p_player, &middle);
@@ -141,22 +129,22 @@ void restart(Arena *arena, Player *player) {
     player->pos.y = arena->middle.y;
 }
 
-void pause(char *message) {
+void pause() {
     erase();
+    int y_to_print = (int)arena.pos.y + arena.lines / 2;
+    int x_to_print = (int)arena.pos.x + arena.cols / 2;
     while (game.is_pause) {
         int key = wgetch(win);
         inputMenu(key);
-        mvwprintw(win, (arena.pos.y + arena.lines) / 2,
-                  (arena.pos.x + arena.cols) / 2, "%s", message);
-        mvwprintw(win, (arena.pos.y + arena.lines) / 2 + 1,
-                  (arena.pos.x + arena.cols) / 2, "Press R to restart");
+        mvwprintmiddle(win, y_to_print, x_to_print, "Paused");
+        mvwprintmiddle(win, y_to_print + 1, x_to_print, "Press R to restart");
     }
 }
 
 void update() {
     if (player.score >= arena.max_score) {
         game.is_winning = true;
-        pause("You WIN!");
+        pause();
         restart(p_arena, p_player);
     }
     player.pos.x += player.vel.x;
@@ -205,7 +193,7 @@ void inputMenu(int key) {
         break;
     case KEY_P:
         game.is_pause = !game.is_pause;
-        pause("Pause");
+        pause();
         break;
     case KEY_R:
         restart(p_arena, p_player);
