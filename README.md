@@ -7,20 +7,27 @@
 #### Dependencies
 
 On Ubuntu/Debian
+
 ``` bash
 sudo apt install cmake
 ```
 
 Enter the following command on the terminal
+
 ``` bash
 mkdir build && cd build
 cmake ../
+```
+
+Then to build the game do
+
+``` bash
 make -j$(nproc)
 ```
 
 Then run `./pacman`.
 
-If any errors occurs try to run `make` **without** `-j$(nproc)`
+> If any errors occurs try to run `make` **without** `-j$(nproc)`
 
 ## TODO
 
