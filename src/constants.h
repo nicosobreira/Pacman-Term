@@ -3,10 +3,15 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
+#define EMPTY 0
+#define WALL 1
+#define POINT 2
+#define POWER_UP 3
+
 #define OFFSET 2
 #define SET_COLOR_ON(color) attron(COLOR_PAIR(color))
 #define SET_COLOR_OFF(color) attroff(COLOR_PAIR(color))
 
-extern double MS_PER_UPDATE;
+extern const double MS_PER_UPDATE;
 
 #endif
