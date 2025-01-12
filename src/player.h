@@ -17,12 +17,10 @@ typedef struct {
     int score;
 } Player;
 
-bool playerCollisionX(Player *, Arena *);
+bool objectCollisionX(Vector *pos, Arena *arena);
 
-bool playerCollisionY(Player *, Arena *);
+bool objectCollisionY(Vector *pos, Arena *arena);
 
-bool playerMovementX(Player *, Arena *);
-
-bool playerMovementY(Player *, Arena *);
+void drawObject(WINDOW *, Vector *, char ch, int color, Arena *);
 
 #endif

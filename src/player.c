@@ -1,31 +1,23 @@
 #include "player.h"
 
-bool playerCollisionX(Player *player, Arena *arena) {
-    if (player->pos.x >= arena->cols || player->pos.x < 0 ||
-        arena->matrix[player->pos.y][player->pos.x] == WALL) {
+bool objectCollisionX(Vector *pos, Arena *arena) {
+    if (pos->x >= arena->cols || pos->x < 0 ||
+        arena->matrix[pos->y][pos->x] == WALL) {
         return true;
     }
     return false;
 }
 
-bool playerCollisionY(Player *player, Arena *arena) {
-    if (player->pos.y >= arena->lines || player->pos.y < 0 ||
-        arena->matrix[player->pos.y][player->pos.x] == WALL) {
+bool objectCollisionY(Vector *pos, Arena *arena) {
+    if (pos->y >= arena->lines || pos->y < 0 ||
+        arena->matrix[pos->y][pos->x] == WALL) {
         return true;
     }
     return false;
 }
 
-bool playerMovementY(Player *player, Arena *arena) {
-    if (arena->matrix[player->pos.x][player->pos.y + player->pos.y] == WALL) {
-        return true;
-    }
-    return false;
-}
-
-bool playerMovementX(Player *player, Arena *arena) {
-    if (arena->matrix[player->pos.x + player->vel.x][player->pos.y] == WALL) {
-        return true;
-    }
-    return false;
+void drawObject(WINDOW *win, Vector *pos, char ch, int color, Arena *arena) {
+    SET_COLOR_ON(color);
+    mvwaddch(win, arena->pos.y + pos->y, arena->pos.x + pos->x * OFFSET, ch);
+    SET_COLOR_OFF(color);
 }
