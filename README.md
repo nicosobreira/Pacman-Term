@@ -15,10 +15,12 @@ Enter the following command on the terminal
 ``` bash
 mkdir build && cd build
 cmake ../
-make
+make -j$(nproc)
 ```
 
 Then run `./pacman`.
+
+If any errors occurs try to run `make` **without** `-j$(nproc)`
 
 ## TODO
 
