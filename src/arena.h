@@ -1,3 +1,4 @@
+#include "constants.h"
 #include "vector.h"
 #include <ncurses.h>
 
@@ -6,12 +7,6 @@
 
 #define ARENA_LINES 10
 #define ARENA_COLS 10
-
-#define EMPTY 0
-#define WALL 1
-#define POINT 2
-#define POWER_UP 3
-
 extern char DRAW_VALUES[4];
 
 extern int fallback_matrix[ARENA_LINES][ARENA_COLS];
