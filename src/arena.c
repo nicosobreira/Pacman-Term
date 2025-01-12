@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-char ARENA_CHARS[] = {' ', '#', '.'};
+char ARENA_CHARS[] = {' ', '#', '.', 'o'};
 
 #define ARENA_SEPARATOR "-"
 
