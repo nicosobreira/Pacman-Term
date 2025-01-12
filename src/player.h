@@ -1,8 +1,8 @@
-#ifndef PLAYER_H
-#define PLAYER_H
-
 #include "arena.h"
 #include "vector.h"
+
+#ifndef PLAYER_H
+#define PLAYER_H
 
 #define LEFT -1
 #define RIGHT 1

@@ -1,8 +1,8 @@
-#ifndef ARENA_H
-#define ARENA_H
-
 #include "vector.h"
 #include <ncurses.h>
+
+#ifndef ARENA_H
+#define ARENA_H
 
 #define ARENA_LINES 10
 #define ARENA_COLS 10
