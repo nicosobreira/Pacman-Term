@@ -82,7 +82,6 @@ Vector arena_middle;
 
 int main(int argc, char **argv) {
     init();
-    game.is_running = true;
     double lag = 0.0;
     double previous = getCurrentTime();
     while (game.is_running) {
@@ -116,6 +115,7 @@ void setPosition(Arena *arena, Player *player, Vector *middle) {
 
 void init() {
     getMaxScore(p_arena);
+    game.is_running = true;
     /* Curses stuff */
     win = initscr();
     setPosition(p_arena, p_player, &middle);
@@ -154,9 +154,10 @@ void pause(char *message) {
 }
 
 void update() {
-    if (player.score >= arena.max_score / 2) {
+    if (player.score >= arena.max_score) {
         game.is_winning = true;
         pause("You WIN!");
+        restart(p_arena, p_player);
     }
     player.pos.x += player.vel.x;
     player.pos.y += player.vel.y;
@@ -204,6 +205,7 @@ void inputMenu(int key) {
         break;
     case KEY_P:
         game.is_pause = !game.is_pause;
+        pause("Pause");
         break;
     case KEY_R:
         restart(p_arena, p_player);
