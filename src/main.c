@@ -1,10 +1,15 @@
 #include "arena.h"
 #include "constants.h"
+#include "ghosts.h"
 #include "graphics.h"
 #include "player.h"
 #include "utils.h"
 #include "vector.h"
 #include <ncurses.h>
+
+/* Todo
+ * 1. Separate object stuff in "player.h" to a new header
+ */
 
 #define KEY_A 97
 #define KEY_S 115
@@ -28,6 +33,10 @@ void inputGame(int key, Player *, Arena *);
 
 void update(void);
 
+void updateEnemies(Ghost *, Arena *);
+
+void updatePlayer(Player *, Arena *);
+
 void draw(Arena *, Player *);
 
 void init(void);
@@ -40,8 +49,6 @@ void setPosition(Arena *, Player *, Vector *);
 
 void pause(void);
 
-double getCurrentTime(void);
-
 WINDOW *win;
 
 Vector middle;
@@ -50,6 +57,8 @@ Game game = {false, true, false};
 
 Player player = {{0, 0}, {0, 1}, 'o', 4, 0};
 Player *p_player = &player;
+
+Ghost red = {{0, 0}, {ARENA_COLS + 1, ARENA_LINES + 1}};
 
 Arena arena = {{0, 0},
                {0, 0},
@@ -78,6 +87,7 @@ int main(int argc, char **argv) {
         double elapsed = current - previous;
         previous = current;
         lag += elapsed;
+
         input();
 
         while (lag >= MS_PER_UPDATE) {
@@ -97,7 +107,7 @@ void setPosition(Arena *arena, Player *player, Vector *middle) {
     arena->middle.x = (int)ARENA_COLS / 2;
     arena->middle.y = (int)ARENA_LINES / 2;
     player->pos.x = arena->middle.x;
-    player->pos.y = arena->middle.y;
+    player->pos.y = arena->middle.y + 2;
 }
 
 void init() {
@@ -132,7 +142,7 @@ void pause() {
     erase();
     int y_to_print = (int)arena.pos.y + arena.lines / 2;
     int x_to_print = (int)arena.pos.x + arena.cols / 2;
-    while (game.is_pause) {
+    while (game.is_pause == true) {
         int key = wgetch(win);
         inputMenu(key);
         mvwprintmiddle(win, y_to_print, x_to_print, "Paused");
@@ -141,24 +151,33 @@ void pause() {
 }
 
 void update() {
+    /* Update AI */
+    updateEnemies(&red, p_arena);
+
+    /* Check is the player win */
     if (player.score >= arena.max_score) {
-        game.is_winning = true;
         pause();
         restart(p_arena, p_player);
     }
-    player.pos.x += player.vel.x;
-    player.pos.y += player.vel.y;
+    updatePlayer(p_player, p_arena);
+}
 
-    if (playerCollisionX(p_player, p_arena)) {
-        player.pos.x -= player.vel.x;
-    };
-    if (playerCollisionY(p_player, p_arena)) {
-        player.pos.y -= player.vel.y;
+void updateEnemies(Ghost *ghost, Arena *arena) { moveGhost(ghost, arena); }
+
+void updatePlayer(Player *player, Arena *arena) {
+    player->pos.x += player->vel.x;
+    player->pos.y += player->vel.y;
+
+    if (objectCollisionX(&player->pos, p_arena)) {
+        player->pos.x -= player->vel.x;
+    }
+    if (objectCollisionY(&player->pos, p_arena)) {
+        player->pos.y -= player->vel.y;
     }
 
-    if (arena.matrix[player.pos.y][player.pos.x] == POINT) {
-        player.score++;
-        arena.matrix[player.pos.y][player.pos.x] = EMPTY;
+    if (arena->matrix[player->pos.y][player->pos.x] == POINT) {
+        player->score++;
+        arena->matrix[player->pos.y][player->pos.x] = EMPTY;
     }
 }
 
@@ -169,10 +188,7 @@ void draw(Arena *arena, Player *player) {
               (int)arena->pos.x / 2 + my_strlen(message) / 2, "%s%i | %i",
               message, player->score, arena->max_score);
     drawArena(win, arena);
-    SET_COLOR_ON(4);
-    mvwaddch(win, arena->pos.y + player->pos.y,
-             arena->pos.x + player->pos.x * OFFSET, player->ch);
-    SET_COLOR_OFF(4);
+    drawObject(win, &player->pos, player->ch, 4, arena);
 }
 
 void input() {
