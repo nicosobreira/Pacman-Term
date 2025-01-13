@@ -4,30 +4,34 @@
 
 ### Linux
 
-#### Dependencies
-
-On Ubuntu/Debian
+### Dependencies
 
 ``` bash
 sudo apt install cmake
 ```
 
-Enter the following command on the terminal
+Enter the following command on the terminal for creating the `MAKEFILE`:
 
 ``` bash
 mkdir build && cd build
 cmake ../
 ```
 
-Then to build the game do
+Then build and run with:
 
 ``` bash
 make -j$(nproc)
+./pacman
 ```
 
-Then run `./pacman`.
-
 > If any errors occurs try to run `make` **without** `-j$(nproc)`
+
+Note:
+You may need to install *ncurses* using the following command
+
+``` bash
+sudo apt install libncurses-dev
+```
 
 ## TODO
 
