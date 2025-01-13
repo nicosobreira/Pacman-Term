@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.0)
 project(pacman C)
 
+# https://github.com/tony/ncurses-example/blob/master/CMakeLists.txt
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O2")
+
 find_package(Curses REQUIRED)
 
 include_directories(${CURSES_INCLUDE_DIR})
