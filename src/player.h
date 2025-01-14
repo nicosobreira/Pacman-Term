@@ -21,6 +21,8 @@ bool objectCollisionX(Vector *pos, Arena *arena);
 
 bool objectCollisionY(Vector *pos, Arena *arena);
 
+bool objectCollision(Vector *pos, Arena *arena);
+
 void drawObject(WINDOW *, Vector *, char ch, int color, Arena *);
 
 #endif

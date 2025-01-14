@@ -25,7 +25,7 @@ typedef struct {
     bool is_winning;
 } Game;
 
-void input();
+void input(void);
 
 void inputMenu(int key);
 
@@ -33,7 +33,7 @@ void inputGame(int key, Player *, Arena *);
 
 void update(void);
 
-void updateEnemies(Ghost *, Arena *);
+void updateEnemies(Ghost *[GHOSTS_MAX], Arena *);
 
 void updatePlayer(Player *, Arena *);
 
@@ -58,7 +58,9 @@ Game game = {false, true, false};
 Player player = {{0, 0}, {0, 1}, 'o', 4, 0};
 Player *p_player = &player;
 
-Ghost red = {{0, 0}, {ARENA_COLS + 1, ARENA_LINES + 1}};
+Ghost red = {{0, 0}, {1, 0}, 'M', 1};
+
+Ghost *ghosts[GHOSTS_MAX];
 
 Arena arena = {{0, 0},
                {0, 0},
@@ -113,6 +115,7 @@ void setPosition(Arena *arena, Player *player, Vector *middle) {
 void init() {
     game.is_running = true;
     getMaxScore(p_arena);
+    ghosts[0] = &red;
     /* Curses stuff */
     win = initscr();
     setPosition(p_arena, p_player, &middle);
@@ -129,13 +132,20 @@ void init() {
     nodelay(win, true);
 }
 
-void close() { endwin(); }
+void close() {
+    curs_set(1);
+    nocbreak();
+    echo();
+    endwin();
+}
 
 void restart(Arena *arena, Player *player) {
     substituteArena(arena, EMPTY, POINT);
     player->score = 0;
     player->pos.x = arena->middle.x;
-    player->pos.y = arena->middle.y;
+    player->pos.y = arena->middle.y + 2;
+    red.pos.x = arena->middle.x;
+    red.pos.y = arena->middle.y;
 }
 
 void pause() {
@@ -152,7 +162,13 @@ void pause() {
 
 void update() {
     /* Update AI */
-    updateEnemies(&red, p_arena);
+    updateEnemies(ghosts, p_arena);
+
+    /* Check ghost x player collision (Game over) */
+    if (red.pos.x == p_player->pos.x && red.pos.y == p_player->pos.y) {
+        pause();
+        restart(p_arena, p_player);
+    }
 
     /* Check is the player win */
     if (player.score >= arena.max_score) {
@@ -161,8 +177,44 @@ void update() {
     }
     updatePlayer(p_player, p_arena);
 }
-
-void updateEnemies(Ghost *ghost, Arena *arena) { moveGhost(ghost, arena); }
+/* Ai
+ * 1. Store a copy of the *pos* and *vel*
+ * 2. Then check the current *vel*, 90º clock and 90º counter clock
+ * 2.1 Each possible value will be store in a dynamically allocated array
+ * 2.2 Need to check if will hit a wall
+ * 3. Then get the new *pos* (added with *vel*)
+ *	  with the minimum linear distance (Pitágoras)
+ */
+void updateEnemies(Ghost *ghosts[GHOSTS_MAX], Arena *arena) {
+    /* Only RED */
+    unsigned int count = 0;
+    Vector possible_vels[3];
+    Vector temp_vel = red.vel;
+    Vector temp_pos = red.pos;
+    /* Current vel */
+    sumVectors(&temp_pos, &temp_vel);
+    if (!objectCollision(&temp_pos, arena)) {
+        possible_vels[count] = temp_vel;
+        count++;
+    }
+    rotateVectorClock(&temp_vel);
+    sumVectors(&temp_pos, &temp_vel);
+    if (!objectCollision(&temp_pos, arena)) {
+        possible_vels[count] = temp_vel;
+        count++;
+    }
+    rotateVector180(&temp_vel);
+    sumVectors(&temp_pos, &temp_vel);
+    if (!objectCollision(&temp_pos, arena)) {
+        possible_vels[2] = temp_vel;
+    }
+    /* Handle ghost movement (Rotate 90) */
+    if (objectCollision(&temp_pos, arena)) {
+        red.pos.x -= red.vel.x;
+        red.pos.y -= red.vel.y;
+        rotateVectorClock(&red.vel);
+    }
+}
 
 void updatePlayer(Player *player, Arena *arena) {
     player->pos.x += player->vel.x;
@@ -189,6 +241,7 @@ void draw(Arena *arena, Player *player) {
               message, player->score, arena->max_score);
     drawArena(win, arena);
     drawObject(win, &player->pos, player->ch, 4, arena);
+    drawObject(win, &red.pos, red.ch, red.color, arena);
 }
 
 void input() {

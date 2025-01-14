@@ -16,6 +16,13 @@ bool objectCollisionY(Vector *pos, Arena *arena) {
     return false;
 }
 
+bool objectCollision(Vector *pos, Arena *arena) {
+    if (objectCollisionX(pos, arena) || objectCollisionY(pos, arena)) {
+        return true;
+    }
+    return false;
+}
+
 void drawObject(WINDOW *win, Vector *pos, char ch, int color, Arena *arena) {
     SET_COLOR_ON(color);
     mvwaddch(win, arena->pos.y + pos->y, arena->pos.x + pos->x * OFFSET, ch);
