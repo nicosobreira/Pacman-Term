@@ -7,6 +7,8 @@
 #define WALL 1
 #define POINT 2
 #define POWER_UP 3
+#define SPAWN_GHOST 'G'
+#define SPAWN_PLAYER 'P'
 
 #define OFFSET 2
 #define SET_COLOR_ON(color) attron(COLOR_PAIR(color))
