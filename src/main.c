@@ -189,25 +189,30 @@ void updateEnemies(Ghost *ghosts[GHOSTS_MAX], Arena *arena) {
     /* Only RED */
     unsigned int count = 0;
     Vector possible_vels[3];
+    /* Current vel */
     Vector temp_vel = red.vel;
     Vector temp_pos = red.pos;
-    /* Current vel */
     sumVectors(&temp_pos, &temp_vel);
-    if (!objectCollision(&temp_pos, arena)) {
+    if (objectCollision(&temp_pos, arena)) {
         possible_vels[count] = temp_vel;
         count++;
     }
+    temp_vel = red.vel;
+    temp_pos = red.pos;
     rotateVectorClock(&temp_vel);
     sumVectors(&temp_pos, &temp_vel);
-    if (!objectCollision(&temp_pos, arena)) {
+    if (objectCollision(&temp_pos, arena)) {
         possible_vels[count] = temp_vel;
         count++;
     }
-    rotateVector180(&temp_vel);
+    temp_vel = red.vel;
+    temp_pos = red.pos;
+    rotateVectorCounterClock(&temp_vel);
     sumVectors(&temp_pos, &temp_vel);
-    if (!objectCollision(&temp_pos, arena)) {
-        possible_vels[2] = temp_vel;
+    if (objectCollision(&temp_pos, arena)) {
+        possible_vels[count] = temp_vel;
     }
+    sumVectors(&red.pos, &possible_vels[1]);
     /* Handle ghost movement (Rotate 90) */
     if (objectCollision(&temp_pos, arena)) {
         red.pos.x -= red.vel.x;
@@ -267,27 +272,40 @@ void inputMenu(int key) {
 }
 
 void inputGame(int key, Player *player, Arena *arena) {
+    Vector temp_vel = {0, 0};
     switch (key) {
     case KEY_RIGHT:
     case KEY_D:
+        if (arena->matrix[player->pos.y][player->pos.x + RIGHT] == WALL) {
+            return;
+        }
         player->ch = '>';
         player->vel.x = RIGHT;
         player->vel.y = 0;
         break;
     case KEY_LEFT:
     case KEY_A:
+        if (arena->matrix[player->pos.y][player->pos.x + LEFT] == WALL) {
+            return;
+        }
         player->ch = '<';
         player->vel.x = LEFT;
         player->vel.y = 0;
         break;
     case KEY_UP:
     case KEY_W:
+        if (arena->matrix[player->pos.y + UP][player->pos.x] == WALL) {
+            return;
+        }
         player->ch = '^';
         player->vel.y = UP;
         player->vel.x = 0;
         break;
     case KEY_DOWN:
     case KEY_S:
+        if (arena->matrix[player->pos.y + DOWN][player->pos.x] == WALL) {
+            return;
+        }
         player->ch = 'v';
         player->vel.y = DOWN;
         player->vel.x = 0;
