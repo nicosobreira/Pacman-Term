@@ -16,22 +16,25 @@
  *	vec->y = -vec->x;
  *	vec->x = temp_y;
  */
-void rotateVectorClock(Vector *vec) {
-    int temp_y = vec->y;
-    vec->y = vec->x;
-    vec->x = -temp_y;
+Vector rotateVectorClock(Vector vec) {
+    int temp_y = vec.y;
+    vec.y = vec.x;
+    vec.x = -temp_y;
+    return vec;
 }
 
 /* Still don't work */
-void rotateVectorCounterClock(Vector *vec) {
-    int temp_x = vec->x;
-    vec->x = vec->y;
-    vec->y = -temp_x;
+Vector rotateVectorCounterClock(Vector vec) {
+    int temp_x = vec.x;
+    vec.x = vec.y;
+    vec.y = -temp_x;
+    return vec;
 }
 
-void rotateVector180(Vector *vec) {
-    vec->x = -vec->x;
-    vec->y = -vec->y;
+Vector rotateVector180(Vector vec) {
+    vec.x = -vec.x;
+    vec.y = -vec.y;
+    return vec;
 }
 
 /** Sum two vectors and stores the new value in the first one */

@@ -5,7 +5,11 @@
 #include "player.h"
 #include "utils.h"
 #include "vector.h"
+#include <math.h>
 #include <ncurses.h>
+#include <signal.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 /* Todo
  * 1. Separate object stuff in "player.h" to a new header
@@ -35,19 +39,23 @@ void update(void);
 
 void updateEnemies(Ghost *[GHOSTS_MAX], Arena *);
 
+float ghostBestMove(Ghost *, Vector vel, Arena *);
+
 void updatePlayer(Player *, Arena *);
 
 void draw(Arena *, Player *);
 
 void init(void);
 
-void close(void);
+void closeGame(void);
+
+void closeGameDie(int i);
 
 void restart(Arena *, Player *);
 
 void setPosition(Arena *, Player *, Vector *);
 
-void pause(void);
+void pauseGame(void);
 
 WINDOW *win;
 
@@ -81,6 +89,10 @@ Arena *p_arena = &arena;
 Vector arena_middle;
 
 int main(int argc, char **argv) {
+    atexit(closeGame);
+    signal(SIGTERM, closeGameDie);
+    signal(SIGINT, closeGameDie);
+
     init();
     double lag = 0.0;
     double previous = getCurrentTime();
@@ -99,7 +111,7 @@ int main(int argc, char **argv) {
 
         draw(p_arena, p_player);
     }
-    close();
+    closeGame();
     return 0;
 }
 
@@ -128,12 +140,14 @@ void init() {
     nodelay(win, true);
 }
 
-void close() {
+void closeGame() {
     curs_set(1);
     nocbreak();
     echo();
     endwin();
 }
+
+void closeGameDie(int i) { exit(1); }
 
 void restart(Arena *arena, Player *player) {
     substituteArena(arena, EMPTY, POINT);
@@ -144,7 +158,7 @@ void restart(Arena *arena, Player *player) {
     red.pos.y = arena->middle.y;
 }
 
-void pause() {
+void pauseGame() {
     erase();
     int y_to_print = (int)arena.pos.y + arena.lines / 2;
     int x_to_print = (int)arena.pos.x + arena.cols / 2;
@@ -185,18 +199,47 @@ void update() {
  */
 void updateEnemies(Ghost *ghosts[GHOSTS_MAX], Arena *arena) {
     Ghost *ghost = &red;
+    Vector temp_vel = ghost->vel;
+    float possibles_linear[3] = {0, 0, 0};
+    Vector possible_vel[3] = {{0, 0}, {0, 0}, {0, 0}};
+    float *choice_value = possibles_linear;
+    float temp = *choice_value;
+    int choice_id = 0;
 
-    /*ghost->target.x = p_player->pos.x;*/
-    /*ghost->target.y = p_player->pos.y;*/
-    ghost->pos.x += ghost->vel.x;
-    ghost->pos.y += ghost->vel.y;
+    ghost->target.x = p_player->pos.x;
+    ghost->target.y = p_player->pos.y;
 
-    if (objectCollisionVector(&ghost->vel, arena)) {
-        ghost->pos.x -= ghost->vel.x;
-        ghost->pos.y -= ghost->vel.y;
+    possibles_linear[0] = ghostBestMove(ghost, temp_vel, arena);
+    possible_vel[0] = temp_vel;
 
-        rotateVectorClock(&ghost->vel);
+    temp_vel = rotateVectorClock(ghost->vel);
+    possibles_linear[1] = ghostBestMove(ghost, temp_vel, arena);
+    possible_vel[1] = temp_vel;
+
+    temp_vel = rotateVectorCounterClock(ghost->vel);
+    possible_vel[2] = temp_vel;
+    possibles_linear[2] = ghostBestMove(ghost, temp_vel, arena);
+    for (int i = 0; i <= 3; i++) {
+        if (temp > *choice_value) {
+            *choice_value = temp;
+            choice_id = i;
+        }
+        choice_value++;
     }
+
+    ghost->vel = possible_vel[choice_id];
+    ghost->pos.x += ghost->pos.x;
+    ghost->pos.y += ghost->pos.y;
+}
+
+float ghostBestMove(Ghost *ghost, Vector vel, Arena *arena) {
+    if (!objectCollision(ghost->pos.x + vel.x, ghost->pos.y + vel.y, arena)) {
+        float result = 0.0;
+        result = sqrt(pow(fabs((float)ghost->pos.x - ghost->target.x), 2) +
+                      pow(fabs((float)ghost->pos.y - ghost->target.y), 2));
+        return result;
+    }
+    return 0;
 }
 
 void updatePlayer(Player *player, Arena *arena) {
@@ -254,7 +297,7 @@ void inputGame(int key, Player *player, Arena *arena) {
     switch (key) {
     case KEY_RIGHT:
     case KEY_D:
-        if (objectCollision(player->pos.x + RIGHT, player->pos.y, arena)) {
+        if (objectCollisionX(player->pos.x + RIGHT, player->pos.y, arena)) {
             break;
         }
         player->ch = '>';
@@ -263,7 +306,7 @@ void inputGame(int key, Player *player, Arena *arena) {
         break;
     case KEY_LEFT:
     case KEY_A:
-        if (objectCollision(player->pos.x + LEFT, player->pos.y, arena)) {
+        if (objectCollisionX(player->pos.x + LEFT, player->pos.y, arena)) {
             break;
         }
         player->ch = '<';
@@ -272,7 +315,7 @@ void inputGame(int key, Player *player, Arena *arena) {
         break;
     case KEY_UP:
     case KEY_W:
-        if (objectCollision(player->pos.x, player->pos.y + UP, arena)) {
+        if (objectCollisionY(player->pos.x, player->pos.y + UP, arena)) {
             break;
         }
         player->ch = '^';
@@ -281,7 +324,7 @@ void inputGame(int key, Player *player, Arena *arena) {
         break;
     case KEY_DOWN:
     case KEY_S:
-        if (objectCollision(player->pos.x, player->pos.y + DOWN, arena)) {
+        if (objectCollisionY(player->pos.x, player->pos.y + DOWN, arena)) {
             break;
         }
         player->ch = 'v';

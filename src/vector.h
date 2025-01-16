@@ -6,11 +6,11 @@ typedef struct {
     int y;
 } Vector;
 
-void rotateVectorClock(Vector *);
+Vector rotateVectorClock(Vector);
 
-void rotateVectorCounterClock(Vector *);
+Vector rotateVectorCounterClock(Vector);
 
-void rotateVector180(Vector *);
+Vector rotateVector180(Vector);
 
 void sumVectors(Vector *, Vector *);
 
