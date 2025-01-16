@@ -55,10 +55,10 @@ Vector middle;
 
 Game game = {false, true, false};
 
-Player player = {{0, 0}, {0, 1}, 'o', 4, 0};
+Player player = {{0, 0}, {0, 1}, 'o', 3, 0};
 Player *p_player = &player;
 
-Ghost red = {{0, 0}, {1, 0}, 'M', 1};
+Ghost red = {{0, 0}, {1, 0}, {0, 0}, 'M', 1};
 
 Ghost *ghosts[GHOSTS_MAX];
 
@@ -120,10 +120,6 @@ void init() {
     win = initscr();
     setPosition(p_arena, p_player, &middle);
     start_color();
-    init_pair(EMPTY + 1, 0, 0);
-    init_pair(WALL + 1, 5, 0);
-    init_pair(POINT + 1, 7, 0);
-    init_pair(4, 3, 0);
     curs_set(0);
     cbreak();
     noecho();
@@ -164,6 +160,8 @@ void update() {
     /* Update AI */
     updateEnemies(ghosts, p_arena);
 
+    updatePlayer(p_player, p_arena);
+
     /* Check ghost x player collision (Game over) */
     if (red.pos.x == p_player->pos.x && red.pos.y == p_player->pos.y) {
         pause();
@@ -175,8 +173,8 @@ void update() {
         pause();
         restart(p_arena, p_player);
     }
-    updatePlayer(p_player, p_arena);
 }
+
 /* Ai
  * 1. Store a copy of the *pos* and *vel*
  * 2. Then check the current *vel*, 90º clock and 90º counter clock
@@ -186,38 +184,18 @@ void update() {
  *	  with the minimum linear distance (Pitágoras)
  */
 void updateEnemies(Ghost *ghosts[GHOSTS_MAX], Arena *arena) {
-    /* Only RED */
-    unsigned int count = 0;
-    Vector possible_vels[3];
-    /* Current vel */
-    Vector temp_vel = red.vel;
-    Vector temp_pos = red.pos;
-    sumVectors(&temp_pos, &temp_vel);
-    if (objectCollision(&temp_pos, arena)) {
-        possible_vels[count] = temp_vel;
-        count++;
-    }
-    temp_vel = red.vel;
-    temp_pos = red.pos;
-    rotateVectorClock(&temp_vel);
-    sumVectors(&temp_pos, &temp_vel);
-    if (objectCollision(&temp_pos, arena)) {
-        possible_vels[count] = temp_vel;
-        count++;
-    }
-    temp_vel = red.vel;
-    temp_pos = red.pos;
-    rotateVectorCounterClock(&temp_vel);
-    sumVectors(&temp_pos, &temp_vel);
-    if (objectCollision(&temp_pos, arena)) {
-        possible_vels[count] = temp_vel;
-    }
-    sumVectors(&red.pos, &possible_vels[1]);
-    /* Handle ghost movement (Rotate 90) */
-    if (objectCollision(&temp_pos, arena)) {
-        red.pos.x -= red.vel.x;
-        red.pos.y -= red.vel.y;
-        rotateVectorClock(&red.vel);
+    Ghost *ghost = &red;
+
+    /*ghost->target.x = p_player->pos.x;*/
+    /*ghost->target.y = p_player->pos.y;*/
+    ghost->pos.x += ghost->vel.x;
+    ghost->pos.y += ghost->vel.y;
+
+    if (objectCollisionVector(&ghost->vel, arena)) {
+        ghost->pos.x -= ghost->vel.x;
+        ghost->pos.y -= ghost->vel.y;
+
+        rotateVectorClock(&ghost->vel);
     }
 }
 
@@ -225,10 +203,10 @@ void updatePlayer(Player *player, Arena *arena) {
     player->pos.x += player->vel.x;
     player->pos.y += player->vel.y;
 
-    if (objectCollisionX(&player->pos, p_arena)) {
+    if (objectCollisionVectorX(&player->pos, p_arena)) {
         player->pos.x -= player->vel.x;
     }
-    if (objectCollisionY(&player->pos, p_arena)) {
+    if (objectCollisionVectorY(&player->pos, p_arena)) {
         player->pos.y -= player->vel.y;
     }
 
@@ -276,8 +254,8 @@ void inputGame(int key, Player *player, Arena *arena) {
     switch (key) {
     case KEY_RIGHT:
     case KEY_D:
-        if (arena->matrix[player->pos.y][player->pos.x + RIGHT] == WALL) {
-            return;
+        if (objectCollision(player->pos.x + RIGHT, player->pos.y, arena)) {
+            break;
         }
         player->ch = '>';
         player->vel.x = RIGHT;
@@ -285,8 +263,8 @@ void inputGame(int key, Player *player, Arena *arena) {
         break;
     case KEY_LEFT:
     case KEY_A:
-        if (arena->matrix[player->pos.y][player->pos.x + LEFT] == WALL) {
-            return;
+        if (objectCollision(player->pos.x + LEFT, player->pos.y, arena)) {
+            break;
         }
         player->ch = '<';
         player->vel.x = LEFT;
@@ -294,8 +272,8 @@ void inputGame(int key, Player *player, Arena *arena) {
         break;
     case KEY_UP:
     case KEY_W:
-        if (arena->matrix[player->pos.y + UP][player->pos.x] == WALL) {
-            return;
+        if (objectCollision(player->pos.x, player->pos.y + UP, arena)) {
+            break;
         }
         player->ch = '^';
         player->vel.y = UP;
@@ -303,8 +281,8 @@ void inputGame(int key, Player *player, Arena *arena) {
         break;
     case KEY_DOWN:
     case KEY_S:
-        if (arena->matrix[player->pos.y + DOWN][player->pos.x] == WALL) {
-            return;
+        if (objectCollision(player->pos.x, player->pos.y + DOWN, arena)) {
+            break;
         }
         player->ch = 'v';
         player->vel.y = DOWN;

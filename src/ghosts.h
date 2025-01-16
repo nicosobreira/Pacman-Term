@@ -11,6 +11,7 @@
 typedef struct {
     Vector pos;
     Vector vel;
+    Vector target;
     char ch;
     int color;
 } Ghost;

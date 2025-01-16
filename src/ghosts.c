@@ -1,13 +1,5 @@
 #include "ghosts.h"
 
-void moveGhost(Ghost *ghost, Arena *arena) {
-    /* Move to the left */
-    ghost->pos.x += ghost->vel.x;
-    if (objectCollisionX(&ghost->pos, arena)) {
-        ghost->pos.x -= ghost->vel.x;
-    }
-}
-
 /* What is a ghost?
  * It's an enemy that follows a *target* (more on that on `Target System`)
  * The have 4 different modes

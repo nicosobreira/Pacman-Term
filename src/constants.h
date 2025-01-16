@@ -11,8 +11,8 @@
 #define SPAWN_PLAYER 'P'
 
 #define OFFSET 2
-#define SET_COLOR_ON(color) attron(COLOR_PAIR(color))
-#define SET_COLOR_OFF(color) attroff(COLOR_PAIR(color))
+#define SET_COLOR_ON(color) attron(COLOR_PAIR(-1))
+#define SET_COLOR_OFF(color) attroff(COLOR_PAIR(-1))
 
 extern const double MS_PER_UPDATE;
 

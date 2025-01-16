@@ -1,23 +1,37 @@
 #include "player.h"
 
-bool objectCollisionX(Vector *pos, Arena *arena) {
-    if (pos->x >= arena->cols || pos->x < 0 ||
-        arena->matrix[pos->y][pos->x] == WALL) {
+bool objectCollisionX(int x, int y, Arena *arena) {
+    if (x >= arena->cols || x < 0 || arena->matrix[y][x] == WALL) {
         return true;
     }
     return false;
 }
 
-bool objectCollisionY(Vector *pos, Arena *arena) {
-    if (pos->y >= arena->lines || pos->y < 0 ||
-        arena->matrix[pos->y][pos->x] == WALL) {
+bool objectCollisionY(int x, int y, Arena *arena) {
+    if (y >= arena->lines || y < 0 || arena->matrix[y][x] == WALL) {
         return true;
     }
     return false;
 }
 
-bool objectCollision(Vector *pos, Arena *arena) {
-    if (objectCollisionX(pos, arena) || objectCollisionY(pos, arena)) {
+bool objectCollision(int x, int y, Arena *arena) {
+    if (objectCollisionX(x, y, arena) && objectCollisionY(x, y, arena)) {
+        return true;
+    }
+    return false;
+}
+
+bool objectCollisionVectorX(Vector *pos, Arena *arena) {
+    return objectCollisionX(pos->x, pos->y, arena);
+}
+
+bool objectCollisionVectorY(Vector *pos, Arena *arena) {
+    return objectCollisionX(pos->x, pos->y, arena);
+}
+
+bool objectCollisionVector(Vector *pos, Arena *arena) {
+    if (objectCollisionVectorX(pos, arena) &&
+        objectCollisionVectorY(pos, arena)) {
         return true;
     }
     return false;
