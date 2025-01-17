@@ -39,7 +39,7 @@ void update(void);
 
 void updateEnemies(Ghost *[GHOSTS_MAX], Arena *);
 
-float ghostBestMove(Ghost *, Vector vel, Arena *);
+float ghostGetMove(Ghost *, Vector vel, Arena *);
 
 void updatePlayer(Player *, Arena *);
 
@@ -67,7 +67,6 @@ Player player = {{0, 0}, {0, 1}, 'o', 3, 0};
 Player *p_player = &player;
 
 Ghost red = {{0, 0}, {1, 0}, {0, 0}, 'M', 1};
-
 Ghost *ghosts[GHOSTS_MAX];
 
 Arena arena = {{0, 0},
@@ -89,9 +88,11 @@ Arena *p_arena = &arena;
 Vector arena_middle;
 
 int main(int argc, char **argv) {
+    /* If the games stops or crashes return the terminal */
     atexit(closeGame);
     signal(SIGTERM, closeGameDie);
     signal(SIGINT, closeGameDie);
+    signal(SIGSEGV, closeGameDie);
 
     init();
     double lag = 0.0;
@@ -189,57 +190,53 @@ void update() {
     }
 }
 
-/* Ai
- * 1. Store a copy of the *pos* and *vel*
- * 2. Then check the current *vel*, 90º clock and 90º counter clock
- * 2.1 Each possible value will be store in a dynamically allocated array
- * 2.2 Need to check if will hit a wall
- * 3. Then get the new *pos* (added with *vel*)
- *	  with the minimum linear distance (Pitágoras)
- */
 void updateEnemies(Ghost *ghosts[GHOSTS_MAX], Arena *arena) {
     Ghost *ghost = &red;
-    Vector temp_vel = ghost->vel;
-    float possibles_linear[3] = {0, 0, 0};
-    Vector possible_vel[3] = {{0, 0}, {0, 0}, {0, 0}};
-    float *choice_value = possibles_linear;
-    float temp = *choice_value;
-    int choice_id = 0;
+    Vector directions[3] = {{0, 0}, {0, 0}, {0, 0}};
+    Vector temp = {0, 0};
+    float linear_distances[3] = {0, 0, 0};
+    unsigned int final_direction_index = 0;
+    unsigned int i = 0;
 
     ghost->target.x = p_player->pos.x;
     ghost->target.y = p_player->pos.y;
 
-    possibles_linear[0] = ghostBestMove(ghost, temp_vel, arena);
-    possible_vel[0] = temp_vel;
+    directions[0].x = ghost->vel.x; // Same as before
+    directions[0].y = ghost->vel.y;
 
-    temp_vel = rotateVectorClock(ghost->vel);
-    possibles_linear[1] = ghostBestMove(ghost, temp_vel, arena);
-    possible_vel[1] = temp_vel;
+    temp = rotateVectorClock(ghost->vel); // 90 clockwise
+    directions[1].x = temp.x;
+    directions[1].y = temp.y;
 
-    temp_vel = rotateVectorCounterClock(ghost->vel);
-    possible_vel[2] = temp_vel;
-    possibles_linear[2] = ghostBestMove(ghost, temp_vel, arena);
-    for (int i = 0; i <= 3; i++) {
-        if (temp > *choice_value) {
-            *choice_value = temp;
-            choice_id = i;
-        }
-        choice_value++;
+    temp = rotateVectorCounterClock(ghost->vel); // 90 counter clockwise
+    directions[2].x = temp.x;
+    directions[2].y = temp.y;
+    // For each possible direction get the linear distance
+    // between player and ghost (if it is a wall sets to 999)
+    for (i = 0; i < 3; i++) {
+        linear_distances[i] = ghostGetMove(ghost, directions[i], arena);
     }
+    // For each linear distance get the smallest one
+    for (i = 0; i < 3; i++) {
+        if (linear_distances[i] < linear_distances[final_direction_index]) {
+            final_direction_index = i;
+        }
+    }
+    ghost->vel.x = directions[final_direction_index].x;
+    ghost->vel.y = directions[final_direction_index].y;
 
-    ghost->vel = possible_vel[choice_id];
-    ghost->pos.x += ghost->pos.x;
-    ghost->pos.y += ghost->pos.y;
+    ghost->pos.x += ghost->vel.x;
+    ghost->pos.y += ghost->vel.y;
 }
 
-float ghostBestMove(Ghost *ghost, Vector vel, Arena *arena) {
-    if (!objectCollision(ghost->pos.x + vel.x, ghost->pos.y + vel.y, arena)) {
-        float result = 0.0;
-        result = sqrt(pow(fabs((float)ghost->pos.x - ghost->target.x), 2) +
-                      pow(fabs((float)ghost->pos.y - ghost->target.y), 2));
-        return result;
+float ghostGetMove(Ghost *ghost, Vector vel, Arena *arena) {
+    if (objectCollision(ghost->pos.x + vel.x, ghost->pos.y + vel.y, arena)) {
+        return 999;
     }
-    return 0;
+    float result = 0.0;
+    result = sqrt(pow(fabs((float)ghost->pos.x - ghost->target.x), 2) +
+                  pow(fabs((float)ghost->pos.y - ghost->target.y), 2));
+    return result;
 }
 
 void updatePlayer(Player *player, Arena *arena) {
