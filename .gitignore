@@ -2,6 +2,7 @@
 *.vim
 build/*
 test/
+.cache
 
 # Prerequisites
 *.d
