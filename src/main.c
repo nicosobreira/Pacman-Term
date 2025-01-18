@@ -49,7 +49,7 @@ void init(void);
 
 void closeGame(void);
 
-void closeGameDie(int i);
+void closeGameDie(int);
 
 void restart(Arena *, Player *);
 
@@ -69,25 +69,26 @@ Player *p_player = &player;
 Ghost red = {{0, 0}, {1, 0}, {0, 0}, 'M', 1};
 Ghost *ghosts[GHOSTS_MAX];
 
-Arena arena = {{0, 0},
-               {0, 0},
-               ARENA_LINES,
-               ARENA_COLS,
-               {{2, 2, 2, 2, 2, 2, 2, 2, 2, 2},
-                {2, 1, 1, 1, 2, 1, 1, 1, 1, 2},
-                {2, 1, 2, 2, 2, 2, 2, 2, 1, 2},
-                {2, 1, 2, 1, 1, 2, 1, 2, 1, 2},
-                {2, 1, 2, 1, 2, 2, 1, 2, 1, 2},
-                {2, 2, 2, 1, 2, 2, 1, 2, 2, 2},
-                {2, 1, 2, 1, 1, 1, 1, 2, 1, 2},
-                {2, 1, 2, 2, 2, 2, 2, 2, 1, 2},
-                {2, 1, 1, 1, 1, 1, 1, 1, 1, 2},
-                {2, 2, 2, 2, 2, 2, 2, 2, 2, 2}}};
+Arena arena = {.pos = {0, 0},
+               .middle = {0, 0},
+               .lines = ARENA_LINES,
+               .cols = ARENA_COLS,
+               .matrix = {{2, 2, 2, 2, 2, 2, 2, 2, 2, 2},
+                          {2, 1, 1, 1, 2, 1, 1, 1, 1, 2},
+                          {2, 1, 2, 2, 2, 2, 2, 2, 1, 2},
+                          {2, 1, 2, 1, 1, 2, 1, 2, 1, 2},
+                          {2, 1, 2, 1, 2, 2, 1, 2, 1, 2},
+                          {2, 2, 2, 1, 2, 2, 1, 2, 2, 2},
+                          {2, 1, 2, 1, 1, 1, 1, 2, 1, 2},
+                          {2, 1, 2, 2, 2, 2, 2, 2, 1, 2},
+                          {2, 1, 1, 1, 1, 1, 1, 1, 1, 2},
+                          {2, 2, 2, 2, 2, 2, 2, 2, 2, 2}},
+               .max_score = 0};
 
 Arena *p_arena = &arena;
 Vector arena_middle;
 
-int main(int argc, char **argv) {
+int main() {
     /* If the games stops or crashes return the terminal */
     atexit(closeGame);
     signal(SIGTERM, closeGameDie);
@@ -148,7 +149,7 @@ void closeGame() {
     endwin();
 }
 
-void closeGameDie(int i) { exit(1); }
+void closeGameDie(int i) { exit(i); }
 
 void restart(Arena *arena, Player *player) {
     substituteArena(arena, EMPTY, POINT);
@@ -195,8 +196,8 @@ void updateEnemies(Ghost *ghosts[GHOSTS_MAX], Arena *arena) {
     Vector directions[3] = {{0, 0}, {0, 0}, {0, 0}};
     Vector temp = {0, 0};
     float linear_distances[3] = {0, 0, 0};
-    unsigned int final_direction_index = 0;
-    unsigned int i = 0;
+    unsigned short final_direction_index = 0;
+    unsigned short i = 0;
 
     ghost->target.x = p_player->pos.x;
     ghost->target.y = p_player->pos.y;
@@ -290,7 +291,6 @@ void inputMenu(int key) {
 }
 
 void inputGame(int key, Player *player, Arena *arena) {
-    Vector temp_vel = {0, 0};
     switch (key) {
     case KEY_RIGHT:
     case KEY_D:
