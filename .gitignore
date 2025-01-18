@@ -1,5 +1,5 @@
 # Custom
-*.vim
+Session.vim*
 build/*
 test/
 .cache
