@@ -89,12 +89,6 @@ Arena *p_arena = &arena;
 Vector arena_middle;
 
 int main() {
-    /* If the games stops or crashes return the terminal */
-    atexit(closeGame);
-    signal(SIGTERM, closeGameDie);
-    signal(SIGINT, closeGameDie);
-    signal(SIGSEGV, closeGameDie);
-
     init();
     double lag = 0.0;
     double previous = getCurrentTime();
@@ -127,6 +121,13 @@ void setPosition(Arena *arena, Player *player, Vector *middle) {
 }
 
 void init() {
+    /* If the games stops or crashes return the terminal */
+    atexit(closeGame);
+    signal(SIGTERM, closeGameDie);
+    signal(SIGINT, closeGameDie);
+    signal(SIGSEGV, closeGameDie);
+    signal(SIGHUP, closeGameDie);
+
     game.is_running = true;
     getMaxScore(p_arena);
     ghosts[0] = &red;
