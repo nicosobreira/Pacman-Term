@@ -1,4 +1,59 @@
 #include "ghosts.h"
+#include "math.h"
+
+void updateGhosts(Ghost *ghosts[GHOSTS_MAX], Player *player, Arena *arena) {
+    unsigned short i;
+    for (i = 0; i < 1; i++) {
+        ghostMove(ghosts[i], player, arena);
+    }
+}
+
+void ghostMove(Ghost *ghost, Player *player, Arena *arena) {
+    Vector directions[3] = {{0, 0}, {0, 0}, {0, 0}};
+    Vector temp = {0, 0};
+    float linear_distances[3] = {0, 0, 0};
+    unsigned short final_direction_index = 0;
+    unsigned short i = 0;
+
+    ghost->target.x = player->pos.x;
+    ghost->target.y = player->pos.y;
+
+    directions[0].x = ghost->vel.x; // Same as before
+    directions[0].y = ghost->vel.y;
+
+    temp = rotateVectorClock(ghost->vel); // 90 clockwise
+    directions[1].x = temp.x;
+    directions[1].y = temp.y;
+
+    temp = rotateVectorCounterClock(ghost->vel); // 90 counter clockwise
+    directions[2].x = temp.x;
+    directions[2].y = temp.y;
+    // For each possible direction get the linear distance
+    // between player and ghost (if it is a wall sets to 999)
+    for (i = 0; i < 3; i++) {
+        linear_distances[i] = ghostGetMove(ghost, directions[i], arena);
+    }
+    // For each linear distance get the smallest one
+    for (i = 0; i < 3; i++) {
+        if (linear_distances[i] < linear_distances[final_direction_index]) {
+            final_direction_index = i;
+        }
+    }
+    ghost->vel.x = directions[final_direction_index].x;
+    ghost->vel.y = directions[final_direction_index].y;
+
+    ghost->pos.x += ghost->vel.x;
+    ghost->pos.y += ghost->vel.y;
+}
+float ghostGetMove(Ghost *ghost, Vector vel, Arena *arena) {
+    if (objectCollision(ghost->pos.x + vel.x, ghost->pos.y + vel.y, arena)) {
+        return 999;
+    }
+    float result = 0.0;
+    result = sqrt(pow(fabs((float)ghost->pos.x - ghost->target.x), 2) +
+                  pow(fabs((float)ghost->pos.y - ghost->target.y), 2));
+    return result;
+}
 
 /* What is a ghost?
  * It's an enemy that follows a *target* (more on that on `Target System`)

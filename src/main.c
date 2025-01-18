@@ -33,10 +33,6 @@ void inputGame(int key, Player *, Arena *);
 
 void update(void);
 
-void updateEnemies(Ghost *[GHOSTS_MAX], Arena *);
-
-float ghostGetMove(Ghost *, Vector vel, Arena *);
-
 void updatePlayer(Player *, Arena *);
 
 void draw(Arena *, Player *);
@@ -63,7 +59,7 @@ Player player = {{0, 0}, {0, 1}, 'o', 3, 0};
 Player *p_player = &player;
 
 Ghost red = {{0, 0}, {1, 0}, {0, 0}, 'M', 1};
-Ghost *ghosts[GHOSTS_MAX];
+Ghost *GHOSTS[GHOSTS_MAX] = {NULL, NULL, NULL, NULL};
 
 Arena arena = {.pos = {0, 0},
                .middle = {0, 0},
@@ -84,7 +80,7 @@ Arena arena = {.pos = {0, 0},
 Arena *p_arena = &arena;
 Vector arena_middle;
 
-int main(int argc, char **argv) {
+int main(void) {
     init();
     double lag = 0.0;
     double previous = getCurrentTime();
@@ -116,7 +112,7 @@ void setPosition(Arena *arena, Player *player, Vector *middle) {
     player->pos.y = arena->middle.y + 2;
 }
 
-void init() {
+void init(void) {
     /* If the games stops or crashes return the terminal */
     atexit(closeGame);
     signal(SIGTERM, closeGameDie);
@@ -126,7 +122,7 @@ void init() {
 
     game.is_running = true;
     getMaxScore(p_arena);
-    ghosts[0] = &red;
+    GHOSTS[0] = &red;
     /* Curses stuff */
     win = initscr();
     setPosition(p_arena, p_player, &middle);
@@ -139,7 +135,7 @@ void init() {
     nodelay(win, true);
 }
 
-void closeGame() {
+void closeGame(void) {
     curs_set(1);
     nocbreak();
     echo();
@@ -157,7 +153,7 @@ void restart(Arena *arena, Player *player) {
     red.pos.y = arena->middle.y;
 }
 
-void pauseGame() {
+void pauseGame(void) {
     erase();
     int y_to_print = (int)arena.pos.y + arena.lines / 2;
     int x_to_print = (int)arena.pos.x + arena.cols / 2;
@@ -169,9 +165,9 @@ void pauseGame() {
     }
 }
 
-void update() {
+void update(void) {
     /* Update AI */
-    updateEnemies(ghosts, p_arena);
+    updateGhosts(GHOSTS, p_player, p_arena);
 
     updatePlayer(p_player, p_arena);
 
@@ -186,55 +182,6 @@ void update() {
         pause();
         restart(p_arena, p_player);
     }
-}
-
-void updateEnemies(Ghost *ghosts[GHOSTS_MAX], Arena *arena) {
-    Ghost *ghost = &red;
-    Vector directions[3] = {{0, 0}, {0, 0}, {0, 0}};
-    Vector temp = {0, 0};
-    float linear_distances[3] = {0, 0, 0};
-    unsigned short final_direction_index = 0;
-    unsigned short i = 0;
-
-    ghost->target.x = p_player->pos.x;
-    ghost->target.y = p_player->pos.y;
-
-    directions[0].x = ghost->vel.x; // Same as before
-    directions[0].y = ghost->vel.y;
-
-    temp = rotateVectorClock(ghost->vel); // 90 clockwise
-    directions[1].x = temp.x;
-    directions[1].y = temp.y;
-
-    temp = rotateVectorCounterClock(ghost->vel); // 90 counter clockwise
-    directions[2].x = temp.x;
-    directions[2].y = temp.y;
-    // For each possible direction get the linear distance
-    // between player and ghost (if it is a wall sets to 999)
-    for (i = 0; i < 3; i++) {
-        linear_distances[i] = ghostGetMove(ghost, directions[i], arena);
-    }
-    // For each linear distance get the smallest one
-    for (i = 0; i < 3; i++) {
-        if (linear_distances[i] < linear_distances[final_direction_index]) {
-            final_direction_index = i;
-        }
-    }
-    ghost->vel.x = directions[final_direction_index].x;
-    ghost->vel.y = directions[final_direction_index].y;
-
-    ghost->pos.x += ghost->vel.x;
-    ghost->pos.y += ghost->vel.y;
-}
-
-float ghostGetMove(Ghost *ghost, Vector vel, Arena *arena) {
-    if (objectCollision(ghost->pos.x + vel.x, ghost->pos.y + vel.y, arena)) {
-        return 999;
-    }
-    float result = 0.0;
-    result = sqrt(pow(fabs((float)ghost->pos.x - ghost->target.x), 2) +
-                  pow(fabs((float)ghost->pos.y - ghost->target.y), 2));
-    return result;
 }
 
 void updatePlayer(Player *player, Arena *arena) {

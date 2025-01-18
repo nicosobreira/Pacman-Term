@@ -16,9 +16,13 @@ typedef struct {
     int color;
 } Ghost;
 
-void moveGhost(Ghost *, Arena *);
-
 Vector *getPossibleGhostMove(Ghost *ghost, Arena *arena);
+
+float ghostGetMove(Ghost *, Vector vel, Arena *);
+
+void ghostMove(Ghost *, Player *, Arena *);
+
+void updateGhosts(Ghost *[GHOSTS_MAX], Player *, Arena *);
 
 #endif
 
