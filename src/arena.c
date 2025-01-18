@@ -27,8 +27,8 @@ char ARENA_CHARS[] = {' ', '#', '.', 'o'};
 
 void setMatrix(int cols, int lines, int *matrix[cols][lines],
                int *values[cols][lines]) {
-    for (int i; i < lines; i++) {
-        for (int j; j < cols; j++) {
+    for (int i = 0; i < lines; i++) {
+        for (int j = 0; j < cols; j++) {
             matrix[i][j] = values[i][j];
         }
     }
