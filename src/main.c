@@ -11,6 +11,10 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#ifndef WORK_FOLDER
+#define WORK_FOLDER ""
+#endif
+
 #define KEY_A 97
 #define KEY_S 115
 #define KEY_D 100
@@ -212,7 +216,7 @@ void draw(Arena *arena, Player *player) {
     drawObject(win, &red.pos, red.ch, red.color, arena);
 }
 
-void input() {
+void input(void) {
     int key = wgetch(win);
     inputMenu(key);
     inputGame(key, p_player, p_arena);
