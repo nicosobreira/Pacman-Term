@@ -11,10 +11,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-/* Todo
- * 1. Separate object stuff in "player.h" to a new header
- */
-
 #define KEY_A 97
 #define KEY_S 115
 #define KEY_D 100
@@ -88,7 +84,7 @@ Arena arena = {.pos = {0, 0},
 Arena *p_arena = &arena;
 Vector arena_middle;
 
-int main() {
+int main(int argc, char **argv) {
     init();
     double lag = 0.0;
     double previous = getCurrentTime();
@@ -112,10 +108,10 @@ int main() {
 }
 
 void setPosition(Arena *arena, Player *player, Vector *middle) {
-    middle->x = (int)COLS / 2;
-    middle->y = (int)LINES / 2;
-    arena->middle.x = (int)ARENA_COLS / 2;
-    arena->middle.y = (int)ARENA_LINES / 2;
+    middle->x = round((float)COLS / 2);
+    middle->y = round((float)LINES / 2);
+    arena->middle.x = round((float)ARENA_COLS / 2);
+    arena->middle.y = round((float)ARENA_LINES / 2);
     player->pos.x = arena->middle.x;
     player->pos.y = arena->middle.y + 2;
 }
