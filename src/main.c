@@ -53,7 +53,7 @@ Player *p_player = &player;
 Ghost red = {{0, 0}, {1, 0}, {0, 0}, 'M', 1};
 Ghost *GHOSTS[GHOSTS_MAX] = {NULL, NULL, NULL, NULL};
 
-Arena arena = {.pos = {0, 0},
+Arena arena = {.pos = {5, 5},
                .middle = {0, 0},
                .lines = ARENA_LINES,
                .cols = ARENA_COLS,
@@ -117,8 +117,8 @@ void update() {
 void draw(Arena *arena, Player *player) {
     erase();
     char *message = "Score: ";
-    mvwprintw(win, arena->lines + 1,
-              (int)arena->pos.x / 2 + my_strlen(message) / 2, "%s%i | %i",
+    mvwprintw(win, arena->pos.y + arena->lines + 1,
+              middleTextX(arena->pos.x + arena->cols, message), "%s%i | %i",
               message, player->score, arena->max_score);
     drawArena(win, arena);
     drawObject(win, &player->pos, player->ch, 4, arena);
@@ -136,6 +136,7 @@ void init() {
     game.is_running = true;
     getMaxScore(p_arena);
     GHOSTS[0] = &red;
+
     /* Curses stuff */
     win = initscr();
     setPosition(p_arena, p_player, &middle);
@@ -174,15 +175,17 @@ void restart(Arena *arena, Player *player) {
     red.pos.y = arena->middle.y;
 }
 
-void pauseGame(void) {
+void pauseGame() {
     erase();
     int y_to_print = (int)arena.pos.y + arena.lines / 2;
-    int x_to_print = (int)arena.pos.x + arena.cols / 2;
-    while (game.is_pause == true) {
-        int key = wgetch(win);
-        inputMenu(key, p_player, p_arena);
-        mvwprintmiddle(win, y_to_print, x_to_print, "Paused");
-        mvwprintmiddle(win, y_to_print + 1, x_to_print, "Press R to restart");
+    int x_to_print = (int)arena.pos.x + arena.cols;
+    char *pause_message[3] = {"Paused", "Press R to Restart",
+                              "Press Q to quit"};
+    for (int i = 0; i < 3; i++) {
+        mvwprintw(win, y_to_print + i, x_to_print, "%s", pause_message[i]);
+    }
+    while (game.is_pause) {
+        inputMenu(wgetch(win), p_player, p_arena);
     }
 }
 void input(Player *player, Arena *arena) {
@@ -194,11 +197,12 @@ void input(Player *player, Arena *arena) {
 void inputMenu(int key, Player *player, Arena *arena) {
     switch (key) {
     case KEY_Q:
+        game.is_pause = false;
         game.is_running = false;
         break;
     case KEY_P:
         game.is_pause = !game.is_pause;
-        pause();
+        pauseGame();
         break;
     case KEY_R:
         game.is_pause = false;

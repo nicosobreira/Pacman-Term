@@ -1,6 +1,7 @@
 #include "graphics.h"
+#include "utils.h"
+#include <math.h>
 
-void mvwprintmiddle(WINDOW *win, int y, int x, char *message) {
-    int middle_x = (int)x + my_strlen(message) / 2;
-    mvwprintw(win, y, middle_x, "%s", message);
+int middleTextX(int x, char *text) {
+    return round((float)x / 2 - (float)my_strlen(text) / 2);
 }
