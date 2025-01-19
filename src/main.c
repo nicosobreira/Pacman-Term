@@ -11,8 +11,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#ifndef WORK_FOLDER
-#define WORK_FOLDER ""
+#ifndef ASSETS_FOLDER
+#define ASSETS_FOLDER ""
 #endif
 
 #define KEY_A 97

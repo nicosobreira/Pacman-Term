@@ -22,6 +22,6 @@ target_sources(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCES})
 
 # https://github.com/meemknight/learnCmake/blob/master/moreCompleteExample/Cmakelists.txt
 # This code creates a macro storing the current directory folder
-target_compile_definitions(${PROJECT_NAME} PRIVATE WORK_FOLDER="${CMAKE_CURRENT_SOURCE_DIR}/assets")
+target_compile_definitions(${PROJECT_NAME} PRIVATE ASSETS_FOLDER="${CMAKE_CURRENT_SOURCE_DIR}/assets")
 # Uncomment next line and comment above for release build
 #target_compile_definitions(${PROJECT_NAME} PRIVATE WORK_FOLDER="./assets")
