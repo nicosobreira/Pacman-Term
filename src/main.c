@@ -12,16 +12,8 @@
 #include <unistd.h>
 
 #ifndef ASSETS_FOLDER
-#define ASSETS_FOLDER ""
+#define ASSETS_FOLDER "./assets"
 #endif
-
-#define KEY_A 97
-#define KEY_S 115
-#define KEY_D 100
-#define KEY_W 119
-#define KEY_Q 113
-#define KEY_P 112
-#define KEY_R 114
 
 typedef struct {
     bool is_pause;
@@ -29,15 +21,11 @@ typedef struct {
     bool is_winning;
 } Game;
 
-void input(void);
+void input(Player *, Arena *);
 
-void inputMenu(int key);
-
-void inputGame(int key, Player *, Arena *);
+void inputMenu(int key, Player *, Arena *);
 
 void update(void);
-
-void updatePlayer(Player *, Arena *);
 
 void draw(Arena *, Player *);
 
@@ -94,7 +82,7 @@ int main(void) {
         previous = current;
         lag += elapsed;
 
-        input();
+        input(p_player, p_arena);
 
         while (lag >= MS_PER_UPDATE) {
             update();
@@ -107,16 +95,37 @@ int main(void) {
     return 0;
 }
 
-void setPosition(Arena *arena, Player *player, Vector *middle) {
-    middle->x = round((float)COLS / 2);
-    middle->y = round((float)LINES / 2);
-    arena->middle.x = round((float)ARENA_COLS / 2);
-    arena->middle.y = round((float)ARENA_LINES / 2);
-    player->pos.x = arena->middle.x;
-    player->pos.y = arena->middle.y + 2;
+void update() {
+    /* Update AI */
+    updateGhosts(GHOSTS, p_player, p_arena);
+
+    updatePlayer(p_player, p_arena);
+
+    /* Check ghost x player collision (Game over) */
+    if (red.pos.x == p_player->pos.x && red.pos.y == p_player->pos.y) {
+        pause();
+        restart(p_arena, p_player);
+    }
+
+    /* Check is the player win */
+    if (player.score >= arena.max_score) {
+        pause();
+        restart(p_arena, p_player);
+    }
 }
 
-void init(void) {
+void draw(Arena *arena, Player *player) {
+    erase();
+    char *message = "Score: ";
+    mvwprintw(win, arena->lines + 1,
+              (int)arena->pos.x / 2 + my_strlen(message) / 2, "%s%i | %i",
+              message, player->score, arena->max_score);
+    drawArena(win, arena);
+    drawObject(win, &player->pos, player->ch, 4, arena);
+    drawObject(win, &red.pos, red.ch, red.color, arena);
+}
+
+void init() {
     /* If the games stops or crashes return the terminal */
     atexit(closeGame);
     signal(SIGTERM, closeGameDie);
@@ -139,14 +148,22 @@ void init(void) {
     nodelay(win, true);
 }
 
-void closeGame(void) {
+void closeGame() {
     curs_set(1);
     nocbreak();
     echo();
     endwin();
 }
-
 void closeGameDie(int i) { exit(i); }
+
+void setPosition(Arena *arena, Player *player, Vector *middle) {
+    middle->x = round((float)COLS / 2);
+    middle->y = round((float)LINES / 2);
+    arena->middle.x = round((float)ARENA_COLS / 2);
+    arena->middle.y = round((float)ARENA_LINES / 2);
+    player->pos.x = arena->middle.x;
+    player->pos.y = arena->middle.y + 2;
+}
 
 void restart(Arena *arena, Player *player) {
     substituteArena(arena, EMPTY, POINT);
@@ -163,66 +180,18 @@ void pauseGame(void) {
     int x_to_print = (int)arena.pos.x + arena.cols / 2;
     while (game.is_pause == true) {
         int key = wgetch(win);
-        inputMenu(key);
+        inputMenu(key, p_player, p_arena);
         mvwprintmiddle(win, y_to_print, x_to_print, "Paused");
         mvwprintmiddle(win, y_to_print + 1, x_to_print, "Press R to restart");
     }
 }
-
-void update(void) {
-    /* Update AI */
-    updateGhosts(GHOSTS, p_player, p_arena);
-
-    updatePlayer(p_player, p_arena);
-
-    /* Check ghost x player collision (Game over) */
-    if (red.pos.x == p_player->pos.x && red.pos.y == p_player->pos.y) {
-        pause();
-        restart(p_arena, p_player);
-    }
-
-    /* Check is the player win */
-    if (player.score >= arena.max_score) {
-        pause();
-        restart(p_arena, p_player);
-    }
-}
-
-void updatePlayer(Player *player, Arena *arena) {
-    player->pos.x += player->vel.x;
-    player->pos.y += player->vel.y;
-
-    if (objectCollisionVectorX(&player->pos, p_arena)) {
-        player->pos.x -= player->vel.x;
-    }
-    if (objectCollisionVectorY(&player->pos, p_arena)) {
-        player->pos.y -= player->vel.y;
-    }
-
-    if (arena->matrix[player->pos.y][player->pos.x] == POINT) {
-        player->score++;
-        arena->matrix[player->pos.y][player->pos.x] = EMPTY;
-    }
-}
-
-void draw(Arena *arena, Player *player) {
-    erase();
-    char *message = "Score: ";
-    mvwprintw(win, arena->lines + 1,
-              (int)arena->pos.x / 2 + my_strlen(message) / 2, "%s%i | %i",
-              message, player->score, arena->max_score);
-    drawArena(win, arena);
-    drawObject(win, &player->pos, player->ch, 4, arena);
-    drawObject(win, &red.pos, red.ch, red.color, arena);
-}
-
-void input(void) {
+void input(Player *player, Arena *arena) {
     int key = wgetch(win);
-    inputMenu(key);
-    inputGame(key, p_player, p_arena);
+    inputMenu(key, player, arena);
+    inputPlayer(key, player, arena);
 }
 
-void inputMenu(int key) {
+void inputMenu(int key, Player *player, Arena *arena) {
     switch (key) {
     case KEY_Q:
         game.is_running = false;
@@ -233,48 +202,7 @@ void inputMenu(int key) {
         break;
     case KEY_R:
         game.is_pause = false;
-        restart(p_arena, p_player);
-        break;
-    }
-}
-
-void inputGame(int key, Player *player, Arena *arena) {
-    switch (key) {
-    case KEY_RIGHT:
-    case KEY_D:
-        if (objectCollisionX(player->pos.x + RIGHT, player->pos.y, arena)) {
-            break;
-        }
-        player->ch = '>';
-        player->vel.x = RIGHT;
-        player->vel.y = 0;
-        break;
-    case KEY_LEFT:
-    case KEY_A:
-        if (objectCollisionX(player->pos.x + LEFT, player->pos.y, arena)) {
-            break;
-        }
-        player->ch = '<';
-        player->vel.x = LEFT;
-        player->vel.y = 0;
-        break;
-    case KEY_UP:
-    case KEY_W:
-        if (objectCollisionY(player->pos.x, player->pos.y + UP, arena)) {
-            break;
-        }
-        player->ch = '^';
-        player->vel.y = UP;
-        player->vel.x = 0;
-        break;
-    case KEY_DOWN:
-    case KEY_S:
-        if (objectCollisionY(player->pos.x, player->pos.y + DOWN, arena)) {
-            break;
-        }
-        player->ch = 'v';
-        player->vel.y = DOWN;
-        player->vel.x = 0;
+        restart(arena, player);
         break;
     }
 }

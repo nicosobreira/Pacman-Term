@@ -1,5 +1,7 @@
 #include "arena.h"
+#include "constants.h"
 #include "vector.h"
+#include <ncurses.h>
 
 #ifndef PLAYER_H
 #define PLAYER_H
@@ -28,6 +30,10 @@ bool objectCollisionVectorX(Vector *pos, Arena *arena);
 bool objectCollisionVectorY(Vector *pos, Arena *arena);
 
 bool objectCollisionVector(Vector *pos, Arena *arena);
+
+void updatePlayer(Player *, Arena *);
+
+void inputPlayer(int key, Player *player, Arena *arena);
 
 void drawObject(WINDOW *, Vector *, char ch, int color, Arena *);
 
