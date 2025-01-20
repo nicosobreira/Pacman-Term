@@ -2,6 +2,7 @@
 #include "constants.h"
 #include "ghosts.h"
 #include "graphics.h"
+#include "matrix.h"
 #include "player.h"
 #include "utils.h"
 #include "vector.h"
@@ -10,10 +11,6 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <unistd.h>
-
-#ifndef ASSETS_FOLDER
-#define ASSETS_FOLDER "./assets"
-#endif
 
 typedef struct {
     bool is_pause;
@@ -26,6 +23,8 @@ void input(Player *, Arena *);
 void inputMenu(int key, Player *, Arena *);
 
 void update(void);
+
+void debug(void);
 
 void draw(Arena *, Player *);
 
@@ -52,6 +51,8 @@ Player *p_player = &player;
 
 Ghost red = {{0, 0}, {1, 0}, {0, 0}, 'M', 1};
 Ghost *GHOSTS[GHOSTS_MAX] = {NULL, NULL, NULL, NULL};
+
+CharMatrix matrix;
 
 Arena arena = {.pos = {5, 5},
                .middle = {0, 0},
@@ -103,7 +104,6 @@ void update() {
 
     /* Check ghost x player collision (Game over) */
     if (red.pos.x == p_player->pos.x && red.pos.y == p_player->pos.y) {
-        pause();
         restart(p_arena, p_player);
     }
 
@@ -116,6 +116,7 @@ void update() {
 
 void draw(Arena *arena, Player *player) {
     erase();
+    debug();
     char *message = "Score: ";
     mvwprintw(win, arena->pos.y + arena->lines + 1,
               middleTextX(arena->pos.x + arena->cols, message), "%s%i | %i",
@@ -123,6 +124,15 @@ void draw(Arena *arena, Player *player) {
     drawArena(win, arena);
     drawObject(win, &player->pos, player->ch, 4, arena);
     drawObject(win, &red.pos, red.ch, red.color, arena);
+}
+
+void debug() {
+    drawMatrix(win, 0, 0, &matrix);
+    mvwprintw(win, LINES - 1, 0, "P: pos.x %i", player.pos.x);
+    mvwprintw(win, LINES - 2, 0, "P: pos.y %i", player.pos.y);
+    mvwprintw(win, LINES - 3, 0, "Gr: pos.x %i", red.pos.x);
+    mvwprintw(win, LINES - 4, 0, "Gr: pos.y %i", red.pos.y);
+    mvwprintw(win, LINES - 5, 0, "Assets %s", ASSETS_FOLDER);
 }
 
 void init() {
@@ -133,6 +143,7 @@ void init() {
     signal(SIGSEGV, closeGameDie);
     signal(SIGHUP, closeGameDie);
 
+    matrix = newMatrix(10, 10);
     game.is_running = true;
     getMaxScore(p_arena);
     GHOSTS[0] = &red;
@@ -150,6 +161,8 @@ void init() {
 }
 
 void closeGame() {
+    freeMatrix(&matrix);
+    /* ncurses stuff */
     curs_set(1);
     nocbreak();
     echo();
@@ -169,6 +182,9 @@ void setPosition(Arena *arena, Player *player, Vector *middle) {
 void restart(Arena *arena, Player *player) {
     substituteArena(arena, EMPTY, POINT);
     player->score = 0;
+    player->vel.x = 0;
+    player->vel.y = 0;
+    player->ch = 'o';
     player->pos.x = arena->middle.x;
     player->pos.y = arena->middle.y + 2;
     red.pos.x = arena->middle.x;

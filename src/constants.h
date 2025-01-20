@@ -22,6 +22,10 @@
 #define KEY_P 112
 #define KEY_R 114
 
+#ifndef ASSETS_FOLDER
+#define ASSETS_FOLDER "./assets"
+#endif
+
 extern const double MS_PER_UPDATE;
 
 #endif
