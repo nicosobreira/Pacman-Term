@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.22.1)
 project(pacman C)
 
 # https://github.com/tony/ncurses-example/blob/master/CMakeLists.txt
@@ -24,4 +24,4 @@ target_sources(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCES})
 # This code creates a macro storing the current directory folder
 target_compile_definitions(${PROJECT_NAME} PRIVATE ASSETS_FOLDER="${CMAKE_CURRENT_SOURCE_DIR}/assets")
 # Uncomment next line and comment above for release build
-#target_compile_definitions(${PROJECT_NAME} PRIVATE WORK_FOLDER="./assets")
+# target_compile_definitions(${PROJECT_NAME} PRIVATE WORK_FOLDER="./assets")
