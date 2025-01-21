@@ -10,11 +10,13 @@ typedef struct {
 } CharMatrix;
 
 #define MATRIX_DEFAULT_VALUE '0'
-#define BUFFER_SIZE 128
+#define BUFFER_SIZE 256
 
 CharMatrix newMatrix(int lines, int cols);
 
 CharMatrix newMatrixFile(WINDOW *win, const char *file);
+
+void printMatrixFile(WINDOW *, const char *file_path);
 
 void freeMatrix(CharMatrix *);
 

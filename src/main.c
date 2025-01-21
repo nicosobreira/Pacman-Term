@@ -4,6 +4,7 @@
 #include "graphics.h"
 #include "matrix.h"
 #include "player.h"
+#include "string.h"
 #include "utils.h"
 #include "vector.h"
 #include <math.h>
@@ -127,12 +128,11 @@ void draw(Arena *arena, Player *player) {
 }
 
 void debug() {
-    drawMatrix(win, 0, 0, &matrix);
+    printMatrixFile(win, "/home/acerola/Code/C/Pacman-Term/assets/maze.txt");
     mvwprintw(win, LINES - 1, 0, "P: pos.x %i", player.pos.x);
     mvwprintw(win, LINES - 2, 0, "P: pos.y %i", player.pos.y);
     mvwprintw(win, LINES - 3, 0, "Gr: pos.x %i", red.pos.x);
     mvwprintw(win, LINES - 4, 0, "Gr: pos.y %i", red.pos.y);
-    mvwprintw(win, LINES - 5, 0, "Assets %s", ASSETS_FOLDER);
 }
 
 void init() {

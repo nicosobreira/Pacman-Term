@@ -22,20 +22,20 @@ CharMatrix newMatrix(int lines, int cols) {
     return matrix;
 }
 
-CharMatrix newMatrixFile(WINDOW *win, const char *file_path) {
+CharMatrix newMatrixFile(WINDOW *win, const char *file_path) {}
+
+void printMatrixFile(WINDOW *win, const char *file_path) {
     FILE *file = fopen(file_path, "r");
     if (file == NULL) {
+        printf("Error while loading %s\n", file_path);
         exit(1);
     }
     char buffer[BUFFER_SIZE];
-    CharMatrix matrix = {.value = NULL, .lines = 0, .cols = 0};
     int count = 0;
     while (fgets(buffer, BUFFER_SIZE, file)) {
         mvwprintw(win, count, 0, "%s", buffer);
         count++;
     }
-
-    return matrix;
 }
 
 void drawMatrix(WINDOW *win, int x, int y, CharMatrix *matrix) {
