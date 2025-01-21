@@ -16,7 +16,7 @@ CharMatrix newMatrix(int lines, int cols);
 
 CharMatrix newMatrixFile(WINDOW *win, const char *file);
 
-void printMatrixFile(WINDOW *, const char *file_path);
+void printMatrixFile(WINDOW *, char *file_path);
 
 void freeMatrix(CharMatrix *);
 

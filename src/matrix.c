@@ -24,11 +24,10 @@ CharMatrix newMatrix(int lines, int cols) {
 
 CharMatrix newMatrixFile(WINDOW *win, const char *file_path) {}
 
-void printMatrixFile(WINDOW *win, const char *file_path) {
+void printMatrixFile(WINDOW *win, char *file_path) {
     FILE *file = fopen(file_path, "r");
     if (file == NULL) {
-        printf("Error while loading %s\n", file_path);
-        exit(1);
+        return;
     }
     char buffer[BUFFER_SIZE];
     int count = 0;
@@ -36,6 +35,7 @@ void printMatrixFile(WINDOW *win, const char *file_path) {
         mvwprintw(win, count, 0, "%s", buffer);
         count++;
     }
+    fclose(file);
 }
 
 void drawMatrix(WINDOW *win, int x, int y, CharMatrix *matrix) {
@@ -51,4 +51,5 @@ void freeMatrix(CharMatrix *matrix) {
         free(matrix->value[i]);
     }
     free(matrix->value);
+    matrix->value = NULL;
 }
