@@ -24,7 +24,7 @@ CharMatrix newMatrix(int lines, int cols) {
 
 CharMatrix newMatrixFile(WINDOW *win, const char *file_path) {}
 
-void printMatrixFile(WINDOW *win, char *file_path) {
+void printMatrixFile(WINDOW *win, const char *file_path) {
     FILE *file = fopen(file_path, "r");
     if (file == NULL) {
         return;

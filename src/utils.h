@@ -1,9 +1,9 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include <time.h>
-
 unsigned int my_strlen(char *);
+
+char *addFilePath(char *file_path, char *file_name);
 
 double getCurrentTime(void);
 

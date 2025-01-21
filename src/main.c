@@ -122,13 +122,13 @@ void draw(Arena *arena, Player *player) {
     mvwprintw(win, arena->pos.y + arena->lines + 1,
               middleTextX(arena->pos.x + arena->cols, message), "%s%i | %i",
               message, player->score, arena->max_score);
-    /*drawArena(win, arena);*/
+    drawArena(win, arena);
     drawObject(win, &player->pos, player->ch, 4, arena);
     drawObject(win, &red.pos, red.ch, red.color, arena);
 }
 
 void debug(void) {
-    printMatrixFile(win, "../assets/maze.txt");
+    printMatrixFile(win, ASSETS_FOLDER);
     mvwprintw(win, LINES - 1, 0, "P: pos.x %i", player.pos.x);
     mvwprintw(win, LINES - 2, 0, "P: pos.y %i", player.pos.y);
     mvwprintw(win, LINES - 3, 0, "Gr: pos.x %i", red.pos.x);
@@ -138,10 +138,10 @@ void debug(void) {
 void init() {
     /* If the games stops or crashes return the terminal */
     atexit(closeGame);
-    /*signal(SIGTERM, closeGameDie);*/
-    /*signal(SIGINT, closeGameDie);*/
-    /*signal(SIGSEGV, closeGameDie);*/
-    /*signal(SIGHUP, closeGameDie);*/
+    signal(SIGTERM, closeGameDie);
+    signal(SIGINT, closeGameDie);
+    signal(SIGSEGV, closeGameDie);
+    signal(SIGHUP, closeGameDie);
 
     matrix = newMatrix(10, 10);
     game.is_running = true;
