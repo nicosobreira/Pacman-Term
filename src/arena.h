@@ -13,9 +13,7 @@ extern char DRAW_VALUES[4];
 typedef struct {
     Vector pos;
     Vector middle;
-    int lines;
-    int cols;
-    int matrix[ARENA_LINES][ARENA_COLS];
+    CharMatrix matrix;
     int max_score;
 } Arena;
 
@@ -29,6 +27,6 @@ void getMaxScore(Arena *arena);
 
 /*Arena loadArena(char *file_name);*/
 
-void substituteArena(Arena *arena, int match, int subst);
+void substituteArena(Arena *arena, const char match, const char subst);
 
 #endif

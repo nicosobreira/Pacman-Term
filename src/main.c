@@ -55,24 +55,8 @@ Ghost *GHOSTS[GHOSTS_MAX] = {NULL, NULL, NULL, NULL};
 
 CharMatrix matrix;
 
-Arena arena = {.pos = {5, 5},
-               .middle = {0, 0},
-               .lines = ARENA_LINES,
-               .cols = ARENA_COLS,
-               .matrix = {{2, 2, 2, 2, 2, 2, 2, 2, 2, 2},
-                          {2, 1, 1, 1, 2, 1, 1, 1, 1, 2},
-                          {2, 1, 2, 2, 2, 2, 2, 2, 1, 2},
-                          {2, 1, 2, 1, 1, 2, 1, 2, 1, 2},
-                          {2, 1, 2, 1, 2, 2, 1, 2, 1, 2},
-                          {2, 2, 2, 1, 2, 2, 1, 2, 2, 2},
-                          {2, 1, 2, 1, 1, 1, 1, 2, 1, 2},
-                          {2, 1, 2, 2, 2, 2, 2, 2, 1, 2},
-                          {2, 1, 1, 1, 1, 1, 1, 1, 1, 2},
-                          {2, 2, 2, 2, 2, 2, 2, 2, 2, 2}},
-               .max_score = 0};
-
+Arena arena = {{0, 0}, {0, 0}, {NULL, 0, 0}, 0};
 Arena *p_arena = &arena;
-Vector arena_middle;
 
 int main(void) {
     init();
@@ -97,7 +81,7 @@ int main(void) {
     return 0;
 }
 
-void update() {
+void update(void) {
     /* Update AI */
     updateGhosts(GHOSTS, p_player, p_arena);
 
@@ -119,9 +103,9 @@ void draw(Arena *arena, Player *player) {
     erase();
     debug();
     char *message = "Score: ";
-    mvwprintw(win, arena->pos.y + arena->lines + 1,
-              middleTextX(arena->pos.x + arena->cols, message), "%s%i | %i",
-              message, player->score, arena->max_score);
+    mvwprintw(win, arena->pos.y + arena->matrix.lines + 1,
+              middleTextX(arena->pos.x + arena->matrix.cols, message),
+              "%s%i | %i", message, player->score, arena->max_score);
     drawArena(win, arena);
     drawObject(win, &player->pos, player->ch, 4, arena);
     drawObject(win, &red.pos, red.ch, red.color, arena);
@@ -134,7 +118,7 @@ void debug(void) {
     mvwprintw(win, LINES - 4, 0, "Gr: pos.y %i", red.pos.y);
 }
 
-void init() {
+void init(void) {
     /* If the games stops or crashes return the terminal */
     atexit(closeGame);
     signal(SIGTERM, closeGameDie);
@@ -159,7 +143,7 @@ void init() {
     nodelay(win, true);
 }
 
-void closeGame() {
+void closeGame(void) {
     freeMatrix(&matrix);
     /* ncurses stuff */
     curs_set(1);
@@ -190,10 +174,10 @@ void restart(Arena *arena, Player *player) {
     red.pos.y = arena->middle.y;
 }
 
-void pauseGame() {
+void pauseGame(void) {
     erase();
-    int y_to_print = (int)arena.pos.y + arena.lines / 2;
-    int x_to_print = (int)arena.pos.x + arena.cols;
+    int y_to_print = (int)arena.pos.y + arena.matrix.lines / 2;
+    int x_to_print = (int)arena.pos.x + arena.matrix.cols;
     char *pause_message[3] = {"Paused", "Press R to Restart",
                               "Press Q to quit"};
     for (int i = 0; i < 3; i++) {

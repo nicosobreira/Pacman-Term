@@ -1,14 +1,15 @@
 #include "player.h"
 
 bool objectCollisionX(int x, int y, Arena *arena) {
-    if (x >= arena->cols || x < 0 || arena->matrix[y][x] == WALL) {
+    if (x >= arena->matrix.cols || x < 0 || arena->matrix.value[y][x] == WALL) {
         return true;
     }
     return false;
 }
 
 bool objectCollisionY(int x, int y, Arena *arena) {
-    if (y >= arena->lines || y < 0 || arena->matrix[y][x] == WALL) {
+    if (y >= arena->matrix.lines || y < 0 ||
+        arena->matrix.value[y][x] == WALL) {
         return true;
     }
     return false;
@@ -44,9 +45,9 @@ void updatePlayer(Player *player, Arena *arena) {
         player->pos.y -= player->vel.y;
     }
 
-    if (arena->matrix[player->pos.y][player->pos.x] == POINT) {
+    if (arena->matrix.value[player->pos.y][player->pos.x] == POINT) {
         player->score++;
-        arena->matrix[player->pos.y][player->pos.x] = EMPTY;
+        arena->matrix.value[player->pos.y][player->pos.x] = EMPTY;
     }
 }
 
