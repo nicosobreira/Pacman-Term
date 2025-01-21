@@ -26,6 +26,12 @@
 #define ASSETS_FOLDER "./assets"
 #endif
 
+#ifdef _WIN32
+#define FILE_SEPARATOR "\\"
+#else
+#define FILE_SEPARATOR "/"
+#endif
+
 extern const double MS_PER_UPDATE;
 
 #endif
