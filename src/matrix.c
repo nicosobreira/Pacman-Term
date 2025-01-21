@@ -22,9 +22,10 @@ CharMatrix newMatrix(int lines, int cols) {
     return matrix;
 }
 
-CharMatrix newMatrixFile(WINDOW *win, const char *file_path) {}
-
-void printMatrixFile(WINDOW *win, const char *file_path) {
+void printMatrixFile(WINDOW *win, const char *file_name) {
+    char file_path[BUFFER_SIZE];
+    snprintf(file_path, sizeof(file_path), "%s%s%s", ASSETS_FOLDER,
+             FILE_SEPARATOR, file_name);
     FILE *file = fopen(file_path, "r");
     if (file == NULL) {
         return;

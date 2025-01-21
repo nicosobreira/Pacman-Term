@@ -1,15 +1,14 @@
 #include "constants.h"
+#include "matrix.h"
 #include "vector.h"
 #include <ncurses.h>
 
-#ifndef ARENA_H
-#define ARENA_H
+#ifndef _ARENA_H
+#define _ARENA_H
 
 #define ARENA_LINES 10
 #define ARENA_COLS 10
 extern char DRAW_VALUES[4];
-
-extern int fallback_matrix[ARENA_LINES][ARENA_COLS];
 
 typedef struct {
     Vector pos;
@@ -19,6 +18,8 @@ typedef struct {
     int matrix[ARENA_LINES][ARENA_COLS];
     int max_score;
 } Arena;
+
+Arena newArenaFile(WINDOW *win, const char *file_name);
 
 void drawArena(WINDOW *, Arena *);
 

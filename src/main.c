@@ -128,7 +128,6 @@ void draw(Arena *arena, Player *player) {
 }
 
 void debug(void) {
-    printMatrixFile(win, ASSETS_FOLDER);
     mvwprintw(win, LINES - 1, 0, "P: pos.x %i", player.pos.x);
     mvwprintw(win, LINES - 2, 0, "P: pos.y %i", player.pos.y);
     mvwprintw(win, LINES - 3, 0, "Gr: pos.x %i", red.pos.x);

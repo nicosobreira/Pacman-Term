@@ -1,9 +1,7 @@
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef _UTILS_H
+#define _UTILS_H
 
 unsigned int my_strlen(char *);
-
-char *addFilePath(char *file_path, char *file_name);
 
 double getCurrentTime(void);
 

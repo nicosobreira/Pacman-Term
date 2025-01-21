@@ -4,34 +4,35 @@ char ARENA_CHARS[] = {' ', '#', '.', 'o'};
 
 #define ARENA_SEPARATOR "-"
 
-/*Arena loadArena(char file_name[]) {*/
-/*    Arena arena;*/
-/*    int buffer_size = 128;*/
-/*    char cwd[buffer_size];*/
-/*    printf("%s\n", getcwd(cwd, buffer_size));*/
-/*    FILE *file = fopen(file_name, "r");*/
-/*    if (file == NULL) {*/
-/*        setMatrix(ARENA_LINES, ARENA_COLS, arena.matrix, fallback_matrix);*/
-/*        return arena;*/
-/*    }*/
-/*    char buffer[buffer_size];*/
-/**/
-/*    while (fgets(buffer, buffer_size, file)) {*/
-/*        printf("%s", buffer);*/
-/*    }*/
-/*    fclose(file);*/
-/*    scanf("");*/
-/**/
-/*    return arena;*/
-/*}*/
+static Arena fallback_arena = {.pos = {0, 0},
+                               .middle = {0, 0},
+                               .lines = 1,
+                               .cols = 1,
+                               .matrix = {{0}},
+                               .max_score = 0};
 
-void setMatrix(int cols, int lines, int *matrix[cols][lines],
-               int *values[cols][lines]) {
-    for (int i = 0; i < lines; i++) {
-        for (int j = 0; j < cols; j++) {
-            matrix[i][j] = values[i][j];
-        }
+Arena newArenaFile(WINDOW *win, const char *file_name) {
+    char file_path[BUFFER_SIZE];
+    snprintf(file_path, sizeof(file_path), "%s%s%s", ASSETS_FOLDER,
+             FILE_SEPARATOR, file_name);
+    FILE *file = fopen(file_path, "r");
+    Arena arena = {.pos = {0, 0},
+                   .middle = {0, 0},
+                   .lines = 1,
+                   .cols = 1,
+                   .matrix = {{0}},
+                   .max_score = 0};
+    if (file == NULL) {
+        return fallback_arena;
     }
+    char buffer[BUFFER_SIZE];
+    int count = 0;
+    while (fgets(buffer, BUFFER_SIZE, file)) {
+        mvwprintw(win, count, 0, "%s", buffer);
+        count++;
+    }
+    fclose(file);
+    return arena;
 }
 
 void drawArena(WINDOW *win, Arena *arena) {

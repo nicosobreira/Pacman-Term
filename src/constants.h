@@ -1,7 +1,9 @@
 #include <ncurses.h>
 
-#ifndef CONSTANTS_H
-#define CONSTANTS_H
+#ifndef _CONSTANTS_H
+#define _CONSTANTS_H
+
+#define BUFFER_SIZE 1024
 
 #define EMPTY 0
 #define WALL 1
@@ -26,7 +28,7 @@
 #define ASSETS_FOLDER "./assets"
 #endif
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(_WIN64)
 #define FILE_SEPARATOR "\\"
 #else
 #define FILE_SEPARATOR "/"
