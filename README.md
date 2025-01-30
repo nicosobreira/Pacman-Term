@@ -26,7 +26,7 @@ make -j$(nproc)
 
 > If any errors occurs try to run `make` **without** `-j$(nproc)`
 
-Note:
+*Note*:
 You may need to install *ncurses* using the following command
 
 ``` bash
@@ -35,7 +35,7 @@ sudo apt install libncurses-dev
 
 ## TODO
 
-- [ ] Create the point system (little dots on the ground)
+- [x] Create the point system (little dots on the ground)
 - [x] Add *colors*!
     - **Yellow** for the points
     - **Purple** for the walls
