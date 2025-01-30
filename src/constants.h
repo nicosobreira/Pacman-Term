@@ -5,10 +5,10 @@
 
 #define BUFFER_SIZE 1024
 
-#define EMPTY 0
-#define WALL 1
-#define POINT 2
-#define POWER_UP 3
+#define EMPTY ' '
+#define WALL '#'
+#define POINT '.'
+#define POWER_UP 'o'
 #define SPAWN_GHOST 'G'
 #define SPAWN_PLAYER 'P'
 

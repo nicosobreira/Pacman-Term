@@ -17,6 +17,11 @@ typedef struct {
     int max_score;
 } Arena;
 
+typedef struct {
+    int length;
+    int *value;
+} IntArray;
+
 Arena newArenaFile(WINDOW *win, const char *file_name);
 
 void drawArena(WINDOW *, Arena *);

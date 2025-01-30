@@ -53,9 +53,7 @@ Player *p_player = &player;
 Ghost red = {{0, 0}, {1, 0}, {0, 0}, 'M', 1};
 Ghost *GHOSTS[GHOSTS_MAX] = {NULL, NULL, NULL, NULL};
 
-CharMatrix matrix;
-
-Arena arena = {{0, 0}, {0, 0}, {NULL, 0, 0}, 0};
+Arena arena;
 Arena *p_arena = &arena;
 
 int main(void) {
@@ -125,15 +123,8 @@ void init(void) {
     signal(SIGINT, closeGameDie);
     signal(SIGSEGV, closeGameDie);
     signal(SIGHUP, closeGameDie);
-
-    matrix = newMatrix(10, 10);
-    game.is_running = true;
-    getMaxScore(p_arena);
-    GHOSTS[0] = &red;
-
     /* Curses stuff */
     win = initscr();
-    setPosition(p_arena, p_player, &middle);
     start_color();
     curs_set(0);
     cbreak();
@@ -141,10 +132,18 @@ void init(void) {
     /*intrflush(win, false);*/
     keypad(win, true);
     nodelay(win, true);
+
+    arena = newArenaFile(win, "maze.txt");
+    /*setPosition(p_arena, p_player, &middle);*/
+    game.is_pause = true;
+    pause();
+    game.is_running = true;
+    getMaxScore(p_arena);
+    GHOSTS[0] = &red;
 }
 
 void closeGame(void) {
-    freeMatrix(&matrix);
+    freeMatrix(&arena.matrix);
     /* ncurses stuff */
     curs_set(1);
     nocbreak();
