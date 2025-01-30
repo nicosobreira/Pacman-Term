@@ -50,7 +50,8 @@ Game game = {false, true, false};
 Player player = {{0, 0}, {0, 1}, 'o', 3, 0};
 Player *p_player = &player;
 
-Ghost red = {{0, 0}, {1, 0}, {0, 0}, 'M', 1};
+Ghost red = {
+    .pos = {0, 0}, .vel = {1, 0}, .target = {0, 0}, .ch = 'M', .color = 1};
 Ghost *GHOSTS[GHOSTS_MAX] = {NULL, NULL, NULL, NULL};
 
 CharMatrix matrix;

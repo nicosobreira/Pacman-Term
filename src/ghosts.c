@@ -1,9 +1,17 @@
 #include "ghosts.h"
 #include "math.h"
 
+/** Check if a direction isn't facing a wall
+ */
+static bool ghostCheckDirection(Ghost *ghost, Vector *vel, Arena *arena) {
+    if (objectCollision(ghost->pos.x + vel->x, ghost->pos.y + vel->y, arena)) {
+        return true;
+    }
+    return false;
+}
+
 void updateGhosts(Ghost *ghosts[GHOSTS_MAX], Player *player, Arena *arena) {
-    unsigned short i;
-    for (i = 0; i < 1; i++) {
+    for (int i = 0; i < 1; i++) {
         ghostMove(ghosts[i], player, arena);
     }
 }
@@ -11,9 +19,8 @@ void updateGhosts(Ghost *ghosts[GHOSTS_MAX], Player *player, Arena *arena) {
 void ghostMove(Ghost *ghost, Player *player, Arena *arena) {
     Vector directions[3] = {{0, 0}, {0, 0}, {0, 0}};
     Vector temp = {0, 0};
-    float linear_distances[3] = {0, 0, 0};
-    unsigned short final_direction_index = 0;
-    unsigned short i = 0;
+    double linear_distances[3] = {0, 0, 0};
+    unsigned int final_direction_index = 0;
 
     ghost->target.x = player->pos.x;
     ghost->target.y = player->pos.y;
@@ -30,11 +37,14 @@ void ghostMove(Ghost *ghost, Player *player, Arena *arena) {
     directions[2].y = temp.y;
     // For each possible direction get the linear distance
     // between player and ghost (if it is a wall sets to 999)
-    for (i = 0; i < 3; i++) {
-        linear_distances[i] = ghostGetMove(ghost, directions[i], arena);
+    for (int i = 0; i < 3; i++) {
+        if (ghostCheckDirection(ghost, &directions[i], arena)) {
+            continue;
+        }
+        linear_distances[i] = ghostGetLinearDistance(ghost);
     }
     // For each linear distance get the smallest one
-    for (i = 0; i < 3; i++) {
+    for (int i = 0; i < 3; i++) {
         if (linear_distances[i] < linear_distances[final_direction_index]) {
             final_direction_index = i;
         }
@@ -45,13 +55,11 @@ void ghostMove(Ghost *ghost, Player *player, Arena *arena) {
     ghost->pos.x += ghost->vel.x;
     ghost->pos.y += ghost->vel.y;
 }
-float ghostGetMove(Ghost *ghost, Vector vel, Arena *arena) {
-    if (objectCollision(ghost->pos.x + vel.x, ghost->pos.y + vel.y, arena)) {
-        return 999;
-    }
-    float result = 0.0;
-    result = sqrt(pow(fabs((float)ghost->pos.x - ghost->target.x), 2) +
-                  pow(fabs((float)ghost->pos.y - ghost->target.y), 2));
+
+double ghostGetLinerDistance(Ghost *ghost) {
+    double result = 0;
+    result = sqrt(pow((double)ghost->pos.x - ghost->target.x, 2) +
+                  pow((double)ghost->pos.y - ghost->target.y, 2));
     return result;
 }
 

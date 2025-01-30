@@ -3,8 +3,8 @@
 #include "player.h"
 #include "vector.h"
 
-#ifndef GHOSTS_H
-#define GHOSTS_H
+#ifndef _GHOSTS_H
+#define _GHOSTS_H
 
 #define GHOSTS_MAX 4
 
@@ -12,13 +12,13 @@ typedef struct {
     Vector pos;
     Vector vel;
     Vector target;
-    char ch;
     int color;
+    char ch;
 } Ghost;
 
 Vector *getPossibleGhostMove(Ghost *ghost, Arena *arena);
 
-float ghostGetMove(Ghost *, Vector vel, Arena *);
+double ghostGetLinearDistance(Ghost *);
 
 void ghostMove(Ghost *, Player *, Arena *);
 
