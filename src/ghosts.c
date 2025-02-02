@@ -12,11 +12,11 @@ static bool ghostCheckDirection(Ghost *ghost, Vector *vel, Arena *arena) {
 
 void updateGhosts(Ghost *ghosts[GHOSTS_MAX], Player *player, Arena *arena) {
     for (int i = 0; i < 1; i++) {
-        ghostMove(ghosts[i], player, arena);
+        ghostChaseMove(ghosts[i], player, arena);
     }
 }
 
-void ghostMove(Ghost *ghost, Player *player, Arena *arena) {
+void ghostChaseMove(Ghost *ghost, Player *player, Arena *arena) {
     Vector directions[3] = {{0, 0}, {0, 0}, {0, 0}};
     Vector temp = {0, 0};
     double linear_distances[3] = {0, 0, 0};
@@ -56,55 +56,9 @@ void ghostMove(Ghost *ghost, Player *player, Arena *arena) {
     ghost->pos.y += ghost->vel.y;
 }
 
-double ghostGetLinerDistance(Ghost *ghost) {
+double ghostGetLinearDistance(Ghost *ghost) {
     double result = 0;
-    result = sqrt(pow((double)ghost->pos.x - ghost->target.x, 2) +
-                  pow((double)ghost->pos.y - ghost->target.y, 2));
+    result = (double)sqrt(pow(ghost->pos.x - ghost->target.x, 2) +
+                          pow(ghost->pos.y - ghost->target.y, 2));
     return result;
 }
-
-/* What is a ghost?
- * It's an enemy that follows a *target* (more on that on `Target System`)
- * The have 4 different modes
- *	Chase - The ghost tries to catch the player
- *	Scatter - The ghosts goes to a specif target on the maze, ignoring the
- *player Frightened - The ghost tries to escape from the player and can be
- *eaten Eaten - The ghost returns to the spawn area All this modes have a
- *table (down) of duration between Chase and Scatter
- *  ----------------------------------------------------------------
- * | Level |  S  |   C  |  S  |   C  |  S  |    C     |   S   |  C  |
- * |   1   | 7ms | 20ms | 7ms | 20ms | 5ms |   20ms   |  5ms  |  -  |
- * |  2-4  | 7ms | 20ms | 7ms | 20ms | 5ms | 17s 20ms | 0.1ms |  -  |
- * |   5+  | 5ms | 20ms | 5ms | 20ms | 5ms | 17s 20ms | 0.1ms |  -  |
- *  ----------------------------------------------------------------
- * The timer is reset if the player dies or the time is out
- */
-
-/* Target System
- * This make the decision on where the ghost will move depending on the
- * target position
- * 1. The ghost will check 3 options: the last movement choice, 90º
- * clockwise and 90º counter clockwise. Never 180º
- * 2. Then it will exclude any walls
- * 3. Then move to the shortest liner path (x_to_target^2 + y_to_target^2 =
- * next_move)
- * 4. If the options give the same value it will follow an order: UP, LEFT,
- * DOWN, RIGHT
- */
-
-/* Types of ghosts
- * Red
- *	Scatter
- *		It will go to the upper right corner
- *	When there are a few points ('.')
- *	left he "ignores" Scatter mode and just follow the player.
- * Blue
- *	Scatter
- *		It will go to the down right corner
- * Pink
- *	Scatter
- *		It will go to the down left corner
- * Yellow
- *	Scatter
- *		It will go to the up left corner
- */

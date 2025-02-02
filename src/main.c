@@ -56,6 +56,7 @@ Ghost *GHOSTS[GHOSTS_MAX] = {NULL, NULL, NULL, NULL};
 
 CharMatrix matrix;
 
+// FIX variables order
 Arena arena = {.pos = {5, 5},
                .middle = {0, 0},
                .lines = ARENA_LINES,
