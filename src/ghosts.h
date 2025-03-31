@@ -20,7 +20,7 @@ Vector *getPossibleGhostMove(Ghost *ghost, Arena *arena);
 
 double ghostGetLinearDistance(Ghost *);
 
-void ghostChaseMove(Ghost *, Player *, Arena *);
+void ghostChase(Ghost *, Player *, Arena *);
 
 void updateGhosts(Ghost *[GHOSTS_MAX], Player *, Arena *);
 

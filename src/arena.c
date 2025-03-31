@@ -36,13 +36,11 @@ Arena newArenaFile(WINDOW *win, const char *file_name) {
 }
 
 void drawArena(WINDOW *win, Arena *arena) {
-    int *value;
     for (int i = 0; i < arena->lines; i++) {
         for (int j = 0; j < arena->cols; j++) {
-            value = &arena->matrix[i][j];
             /*SET_COLOR_ON(*value + 1);*/
             mvwaddch(win, i + arena->pos.y, arena->pos.x + j * OFFSET,
-                     ARENA_CHARS[*value]);
+                     ARENA_CHARS[arena->matrix[i][j]]);
             /*SET_COLOR_OFF(*value + 1);*/
         }
     }
