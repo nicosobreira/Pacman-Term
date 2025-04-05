@@ -1,17 +1,11 @@
-#ifndef VECTOR_H
-#define VECTOR_H
+#pragma once
 
 typedef struct {
     int x;
     int y;
 } Vector;
 
-Vector rotateVectorClock(Vector);
-
-Vector rotateVectorCounterClock(Vector);
-
-Vector rotateVector180(Vector);
-
+void rotateVector90Clock(Vector *rotated, Vector *vec);
+void rotateVector90CounterClock(Vector *rotated, Vector *vec);
+void rotateVector180(Vector *rotated, Vector *vec);
 void sumVectors(Vector *, Vector *);
-
-#endif

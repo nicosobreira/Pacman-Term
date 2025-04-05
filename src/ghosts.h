@@ -1,10 +1,9 @@
+#pragma once
+
 #include "arena.h"
 #include "constants.h"
 #include "player.h"
 #include "vector.h"
-
-#ifndef _GHOSTS_H
-#define _GHOSTS_H
 
 #define GHOSTS_MAX 4
 
@@ -16,15 +15,7 @@ typedef struct {
     char ch;
 } Ghost;
 
-Vector *getPossibleGhostMove(Ghost *ghost, Arena *arena);
-
-double ghostGetLinearDistance(Ghost *);
-
-void ghostChase(Ghost *, Player *, Arena *);
-
-void updateGhosts(Ghost *[GHOSTS_MAX], Player *, Arena *);
-
-#endif
+void updateGhost(Ghost *, Player *, Arena *);
 
 /* What is a ghost?
  * It's an enemy that follows a *target* (more on that on `Target System`)

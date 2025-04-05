@@ -1,7 +1,6 @@
-#include <ncurses.h>
+#pragma once
 
-#ifndef _CONSTANTS_H
-#define _CONSTANTS_H
+#include <ncurses.h>
 
 #define BUFFER_SIZE 1024
 
@@ -16,14 +15,7 @@
 #define SET_COLOR_ON(color) attron(COLOR_PAIR(-1))
 #define SET_COLOR_OFF(color) attroff(COLOR_PAIR(-1))
 
-#define KEY_A 97
-#define KEY_S 115
-#define KEY_D 100
-#define KEY_W 119
-#define KEY_Q 113
-#define KEY_P 112
-#define KEY_R 114
-
+// FIX assets don't use file separator
 #ifndef ASSETS_FOLDER
 #define ASSETS_FOLDER "./assets"
 #endif
@@ -32,8 +24,4 @@
 #define FILE_SEPARATOR "\\"
 #else
 #define FILE_SEPARATOR "/"
-#endif
-
-extern const double MS_PER_UPDATE;
-
 #endif
