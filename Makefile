@@ -55,12 +55,12 @@ release: LDFLAGS += $(RELEASE_LDFLAGS)
 release:
 	@echo "all"
 
+install: $(PREFIX)
 install: CFLAGS += -DNDEBUG -fstack-protector-strong
 install: LDFLAGS += -Wl,-z,now,-z,relro
-install: $(PREFIX)
 install: release
-	@echo "Installing to $(INSTALL_DIR)"
-	echo "install -Dm755 $(TARGET) $(PREFIX)/bin/$(PROJECT_NAME)"
+	@echo "Installing to $(PREFIX)"
+	install -Dm755 $(TARGET) $(PREFIX)/bin/$(PROJECT_NAME)
 	@echo "Installation complete"
 
 $(PREFIX):
