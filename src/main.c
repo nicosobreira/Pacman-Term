@@ -40,9 +40,9 @@ WINDOW *win;
 Vector middle;
 
 Game game = {
-	is_paused = false,
-	is_running = true,
-	is_winning = false
+	.is_paused = false,
+	.is_running = true,
+	.is_winning = false
 };
 
 Player player = {
