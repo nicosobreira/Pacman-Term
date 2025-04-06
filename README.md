@@ -2,35 +2,19 @@
 
 ## Build
 
-### Linux
-
-### Dependencies
-
+Dependencies, on Ubuntu/Debian:
 ``` bash
-sudo apt install cmake
+sudo apt install make libncurses-dev
 ```
 
-Enter the following command on the terminal for creating the `MAKEFILE`:
-
+Building:
 ``` bash
-mkdir build && cd build
-cmake ../
+make
 ```
 
-Then build and run with:
-
+Running:
 ``` bash
-make -j$(nproc)
-./pacman
-```
-
-> If any errors occurs try to run `make` **without** `-j$(nproc)`
-
-*Note*:
-You may need to install *ncurses* using the following command
-
-``` bash
-sudo apt install libncurses-dev
+./build/pacman
 ```
 
 ## TODO
@@ -40,7 +24,7 @@ sudo apt install libncurses-dev
     - **Yellow** for the points
     - **Purple** for the walls
 - [ ] Add ghost's (**I HAVE NO IDEA**)
-    - [ ] Add a target system
+    - [x] Add a target system
 - [ ] Add multiple arenas
     - Using text files
     - Need to load them
