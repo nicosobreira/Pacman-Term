@@ -1,8 +1,8 @@
 #include "vector.h"
 
 /*
-|  x  | -> |  y  | -> |  y  |
-|  y  |    | -x  |    |  x  |
+|  x  | -> |  y  |
+|  y  |    | -x  |
 */
 void rotateVector90Clock(Vector *rotated, Vector *vec) {
 	rotated->x = vec->y;
@@ -10,8 +10,8 @@ void rotateVector90Clock(Vector *rotated, Vector *vec) {
 }
 
 /*
-|  x  | -> | -y  | -> | -y  |
-|  y  |    |  x  |    | -x  |
+|  x  | -> | -y  |
+|  y  |    |  x  |
 */
 void rotateVector90CounterClock(Vector *rotated, Vector *vec) {
 	rotated->x = -vec->y;
@@ -19,8 +19,8 @@ void rotateVector90CounterClock(Vector *rotated, Vector *vec) {
 }
 
 /*
-|  x  | -> | -x  | -> | -x  |
-|  y  |    | -y  |    |  y  |
+|  x  | -> | -x  |
+|  y  |    | -y  |
 */
 void rotateVector180(Vector *rotated, Vector *vec) {
 	rotated->x = -vec->x;
