@@ -1,6 +1,7 @@
 PROJECT_NAME := pacman
 
 PREFIX ?= $(HOME)/.local
+ASSETS_DIR := assets
 SOURCE_DIR := src
 BUILD_DIR := build
 OBJECT_DIR := $(BUILD_DIR)/obj
@@ -17,8 +18,12 @@ LDFLAGS := -lm -lncurses
 RELEASE_CFLAGS := -O3 -march=native -flto -fno-plt -pipe
 RELEASE_LDFLAGS := -flto -fno-plt -s
 
-DEBUG_CFLAGS := -g3 -Og -fno-omit-frame-pointer -fsanitize=address,undefined
-DEBUG_LDFLAGS := -fsanitize=address,undefined
+DEBUG_CFLAGS :=
+# DEBUG_CFLAGS += -g3 -Og
+# DEBUG_CFLAGS += -fsanitize=address,undefined -fno-omit-frame-pointer
+
+DEBUG_LDFLAGS :=
+# DEBUG_LDFALGS += -fsanitize=address,undefined
 
 TARGET := $(BUILD_DIR)/$(PROJECT_NAME)
 
@@ -52,8 +57,7 @@ debug: all
 
 release: CFLAGS += $(RELEASE_CFLAGS)
 release: LDFLAGS += $(RELEASE_LDFLAGS)
-release:
-	@echo "all"
+release: all
 
 install: $(PREFIX)
 install: CFLAGS += -DNDEBUG -fstack-protector-strong
