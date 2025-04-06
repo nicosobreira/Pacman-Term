@@ -1,8 +1,8 @@
 #pragma once
 
-typedef struct {
-    int x;
-    int y;
+typedef struct Vector {
+	int x;
+	int y;
 } Vector;
 
 void rotateVector90Clock(Vector *rotated, Vector *vec);
