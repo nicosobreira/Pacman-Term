@@ -23,20 +23,23 @@ void updateGhost(Ghost *ghost, Player *player, Arena *arena) {
 	rotateVector90CounterClock(&rotated_vel[2], &ghost->vel);
 	ghostCheckVelocity(ghost, &rotated_vel[2], arena);
 
+	// BUG if the value of INVALID_VELOCITY is smaller than the maximum distance possible in the arena it will occur a bug
 	float smallest_distance = INVALID_VELOCITY;
 	int smallest_distance_index = 0;
 	for (int i = 0; i < POSSIBLE_VELOCITY; i++) {
 		if (rotated_vel[i].x == INVALID_VELOCITY && rotated_vel[i].y == INVALID_VELOCITY) continue;
-		/* Calculate the linear distance
-		 * Just need 3 variable, one containing the smallest distance, once with the index of the smallest distance and one temporary for calculation the current distance
-		*/
+		// Calculate the linear distance
 		float distance = sqrtf(
 			powf(ghost->pos.x + rotated_vel[i].x - player->pos.x, 2) +
 			powf(ghost->pos.y + rotated_vel[i].y - player->pos.y, 2)
 		);
-		if (distance >= smallest_distance) continue;
-		smallest_distance = distance;
-		smallest_distance_index = i;
+		if (distance < smallest_distance) {
+			smallest_distance = distance;
+			smallest_distance_index = i;
+		} else if (distance == smallest_distance) {
+			// Need to follow the following order
+			// UP -> LEFT -> DOWN -> RIGHT
+		}
 	}
 	ghost->vel = rotated_vel[smallest_distance_index];
 

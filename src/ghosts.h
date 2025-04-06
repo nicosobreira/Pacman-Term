@@ -2,6 +2,7 @@
 
 #include "arena.h"
 #include "constants.h"
+#include "object.h"
 #include "player.h"
 #include "vector.h"
 
