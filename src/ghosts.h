@@ -6,9 +6,11 @@
 #include "player.h"
 #include "vector.h"
 
-#define GHOSTS_MAX 4
+#define INVALID_VELOCITY (255)
+#define POSSIBLE_VELOCITY (3)
+#define GHOSTS_MAX (4)
 
-typedef struct {
+typedef struct Ghost {
     Vector pos;
     Vector vel;
     Vector target;
@@ -16,6 +18,7 @@ typedef struct {
     char ch;
 } Ghost;
 
+Vector getVelocityFromTarget(Ghost *ghost, Vector *target, Arena *arena);
 void updateGhost(Ghost *, Player *, Arena *);
 
 /* What is a ghost?
@@ -53,8 +56,7 @@ void updateGhost(Ghost *, Player *, Arena *);
  * Red
  *	Scatter
  *		It will go to the upper right corner
- *	When there are a few points ('.')
- *	left he "ignores" Scatter mode and just follow the player.
+ *	When there are a few points ('.') left he "ignores" Scatter mode and just follow the player.
  * Blue
  *	Scatter
  *		It will go to the down right corner
