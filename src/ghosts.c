@@ -37,7 +37,7 @@ void updateGhost(Ghost *ghost, Player *player, Arena *arena) {
 			smallest_distance = distance;
 			smallest_distance_index = i;
 		} else if (distance == smallest_distance) {
-			// Need to follow the following order
+			// TODO Need to follow the following order
 			// UP -> LEFT -> DOWN -> RIGHT
 		}
 	}
