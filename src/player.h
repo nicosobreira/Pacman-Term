@@ -4,10 +4,10 @@
 #include "constants.h"
 #include "vector.h"
 
-#define LEFT -1
-#define RIGHT 1
-#define UP -1
-#define DOWN 1
+#define LEFT (-1)
+#define RIGHT (1)
+#define UP (-1)
+#define DOWN (1)
 
 typedef struct Player {
     Vector pos;
@@ -20,4 +20,3 @@ typedef struct Player {
 void updatePlayer(Player *, Arena *);
 
 void inputPlayer(int key, Player *player, Arena *arena);
-

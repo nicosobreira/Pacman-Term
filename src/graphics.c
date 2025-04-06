@@ -3,5 +3,5 @@
 #include <math.h>
 
 int middleTextX(int x, char *text) {
-    return round((float)x / 2 - (float)my_strlen(text) / 2);
+	return (int)round(x / 2.0 - my_strlen(text) / 2.0);
 }

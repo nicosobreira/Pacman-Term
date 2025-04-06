@@ -39,13 +39,29 @@ WINDOW *win;
 
 Vector middle;
 
-Game game = {false, true, false};
+Game game = {
+	is_paused = false,
+	is_running = true,
+	is_winning = false
+};
 
-Player player = {{0, 0}, {0, 1}, 'o', 3, 0};
+Player player = {
+	.pos = {0, 0},
+	.vel = {0, 1},
+	.ch = 'o',
+	.color = 3,
+	.score = 0
+};
 Player *p_player = &player;
 
 Ghost red = {
-	.pos = {0, 0}, .vel = {1, 0}, .target = {0, 0}, .ch = 'M', .color = 1};
+	.pos = {0, 0},
+	.vel = {1, 0},
+	.target = {0, 0},
+	.mode = CHASE,
+	.ch = 'M',
+	.color = 1
+};
 
 Arena arena = {
 	.pos = {5, 5},

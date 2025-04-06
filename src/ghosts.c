@@ -1,7 +1,24 @@
 #include "ghosts.h"
 #include "math.h"
 
-static int getVelocityPriority(Vector *vec) {
+void updateGhost(Ghost *ghost, Player *player, Arena *arena) {
+	switch (ghost->mode) {
+		case CHASE:
+			ghostFollowTarget(ghost, &player->pos, arena);
+			break;
+		case SCATTER:
+			break;
+		case FRIGHTENED:
+			break;
+		case EATEN:
+			break;
+	}
+
+	ghost->pos.x += ghost->vel.x;
+	ghost->pos.y += ghost->vel.y;
+}
+
+int getVelocityPriority(Vector *vec) {
 	if (vec->x == 0 && vec->y == -1) return 0;	// UP
 	if (vec->x == -1 && vec->y == 0) return 1;	// LEFT
 	if (vec->x == 0 && vec->y == 1) return 2;	// DOWN
@@ -9,14 +26,15 @@ static int getVelocityPriority(Vector *vec) {
 	return 4;
 }
 
-static void ghostCheckVelocity(Ghost *ghost, Vector *vel, Arena *arena) {
+void ghostCheckVelocity(Ghost *ghost, Vector *vel, Arena *arena) {
 	if (objectCollision(ghost->pos.x + vel->x, ghost->pos.y + vel->y, arena)) {
 		vel->x = INVALID_VELOCITY;
 		vel->y = INVALID_VELOCITY;
 	}
 }
 
-Vector getVelocityFromTarget(Ghost *ghost, Vector *target, Arena *arena) {
+// Target system
+void ghostFollowTarget(Ghost *ghost, Vector *target, Arena *arena) {
 	Vector possible_vel[POSSIBLE_VELOCITY];
 
 	possible_vel[0] = ghost->vel;
@@ -34,10 +52,13 @@ Vector getVelocityFromTarget(Ghost *ghost, Vector *target, Arena *arena) {
 	for (int i = 0; i < POSSIBLE_VELOCITY; i++) {
 		if (possible_vel[i].x == INVALID_VELOCITY && possible_vel[i].y == INVALID_VELOCITY) continue;
 		// Calculate the linear distance
-		float distance = sqrtf(
+		// float distance = sqrtf(
+		// 	powf(ghost->pos.x + possible_vel[i].x - target->x, 2) +
+		// 	powf(ghost->pos.y + possible_vel[i].y - target->y, 2)
+		// );
+		float distance =
 			powf(ghost->pos.x + possible_vel[i].x - target->x, 2) +
-			powf(ghost->pos.y + possible_vel[i].y - target->y, 2)
-		);
+			powf(ghost->pos.y + possible_vel[i].y - target->y, 2);
 
 		if (distance < smallest_distance) {
 			smallest_distance = distance;
@@ -51,12 +72,5 @@ Vector getVelocityFromTarget(Ghost *ghost, Vector *target, Arena *arena) {
 			}
 		}
 	}
-	return possible_vel[smallest_distance_index];
-}
-
-void updateGhost(Ghost *ghost, Player *player, Arena *arena) {
-	ghost->vel = getVelocityFromTarget(ghost, &player->pos, arena);
-
-	ghost->pos.x += ghost->vel.x;
-	ghost->pos.y += ghost->vel.y;
+	ghost->vel = possible_vel[smallest_distance_index];
 }

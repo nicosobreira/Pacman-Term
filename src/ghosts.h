@@ -10,15 +10,23 @@
 #define POSSIBLE_VELOCITY (3)
 #define GHOSTS_MAX (4)
 
+#define CHASE (1)
+#define SCATTER (2)
+#define FRIGHTENED (3)
+#define EATEN (4)
+
 typedef struct Ghost {
     Vector pos;
     Vector vel;
     Vector target;
     int color;
+	int mode;
     char ch;
 } Ghost;
 
-Vector getVelocityFromTarget(Ghost *ghost, Vector *target, Arena *arena);
+int getVelocityPriority(Vector *vec);
+void ghostCheckVelocity(Ghost *ghost, Vector *vel, Arena *arena);
+void ghostFollowTarget(Ghost *ghost, Vector *target, Arena *arena);
 void updateGhost(Ghost *, Player *, Arena *);
 
 /* What is a ghost?
