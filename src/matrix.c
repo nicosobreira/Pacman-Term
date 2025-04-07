@@ -3,31 +3,50 @@
 #include <stdlib.h>
 
 CharMatrix newMatrix(int lines, int cols) {
-	CharMatrix matrix = {.value = NULL, .lines = lines, .cols = cols};
-	matrix.value = malloc(sizeof(char *) * matrix.lines);
-	if (matrix.value == NULL) {
-		return matrix;
+	CharMatrix matrix = {.values = NULL, .lines = lines, .cols = cols};
+	matrix.values = malloc(sizeof(char *) * matrix.lines);
+	if (matrix.values == NULL) {
+		exit(1);
 	}
 
 	for (int i = 0; i < matrix.lines; i++) {
-		matrix.value[i] = malloc(sizeof(char) * matrix.cols);
-		if (matrix.value == NULL) {
-			return matrix;
+		matrix.values[i] = malloc(sizeof(char) * matrix.cols);
+		if (matrix.values == NULL) {
+			exit(1);
 		}
 		for (int j = 0; j < matrix.cols; j++) {
-			matrix.value[i][j] = MATRIX_DEFAULT_VALUE;
+			matrix.values[i][j] = MATRIX_DEFAULT_VALUES;
 		}
 	}
 
 	return matrix;
 }
 
+CharMatrix newMatrixValues(int lines, int cols, char values[lines][cols]) {
+	CharMatrix matrix = {.values = NULL, .lines = lines, .cols = cols};
+	matrix.values = malloc(sizeof(char *) * matrix.lines);
+	if (matrix.values == NULL) {
+		exit(1);
+	}
+
+	for (int i = 0; i < matrix.lines; i++) {
+		matrix.values[i] = malloc(sizeof(char) * matrix.cols);
+		if (matrix.values == NULL) {
+			exit(1);
+		}
+		for (int j = 0; j < matrix.cols; j++) {
+			matrix.values[i][j] = values[i][j];
+		}
+	}
+
+	return matrix;
+}
 void printMatrixFile(WINDOW *win, const char *file_name) {
 	char file_path[BUFFER_SIZE];
 	snprintf(file_path, sizeof(file_path), "%s%s%s", ASSETS_FOLDER,
 			FILE_SEPARATOR, file_name);
 	FILE *file = fopen(file_path, "r");
-	if (file == NULL) {
+		if (file == NULL) {
 		return;
 	}
 	char buffer[BUFFER_SIZE];
@@ -42,15 +61,15 @@ void printMatrixFile(WINDOW *win, const char *file_name) {
 void drawMatrix(WINDOW *win, int x, int y, CharMatrix *matrix) {
 	for (int i = 0; i < matrix->lines; i++) {
 		for (int j = 0; j < matrix->cols; j++) {
-			mvwaddch(win, y + i, x + j * OFFSET, matrix->value[i][j]);
+			mvwaddch(win, y + i, x + j * OFFSET, matrix->values[i][j]);
 		}
 	}
 }
 
 void freeMatrix(CharMatrix *matrix) {
 	for (int i = 0; i < matrix->lines; i++) {
-		free(matrix->value[i]);
+		free(matrix->values[i]);
 	}
-	free(matrix->value);
-	matrix->value = NULL;
+	free(matrix->values);
+	matrix->values = NULL;
 }

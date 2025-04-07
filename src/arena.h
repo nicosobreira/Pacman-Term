@@ -6,20 +6,20 @@
 #include <ncurses.h>
 
 #define ARENA_SEPARATOR "-"
-#define ARENA_LINES 10
-#define ARENA_COLS 10
-extern char DRAW_VALUES[4];
+#define FALLBACK_ARENA_LINES (10)
+#define FALLBACK_ARENA_COLS (10)
+#define INIT_MATRIX newMatrixValues(FALLBACK_ARENA_LINES, FALLBACK_ARENA_COLS, fallback_arena_matrix[FALLBACK_ARENA_LINES][FALLBACK_ARENA_COLS])
 
+extern char DRAW_VALUES[4];
+extern char fallback_arena_matrix[FALLBACK_ARENA_LINES][FALLBACK_ARENA_COLS];
 typedef struct {
     Vector pos;
     Vector middle;
-    int lines;
-    int cols;
-    int matrix[ARENA_LINES][ARENA_COLS];
+	CharMatrix matrix;
     int max_score;
 } Arena;
 
-Arena newArenaFile(WINDOW *win, const char *file_name);
+Arena newArenaFile(char *arena_file_name);
 
 void drawArena(WINDOW *, Arena *);
 

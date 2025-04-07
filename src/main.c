@@ -52,6 +52,7 @@ Player player = {
 	.color = 3,
 	.score = 0
 };
+
 Player *p_player = &player;
 
 Ghost red = {
@@ -61,26 +62,6 @@ Ghost red = {
 	.mode = CHASE,
 	.ch = 'M',
 	.color = 1
-};
-
-Arena arena = {
-	.pos = {5, 5},
-	.middle = {0, 0},
-	.lines = ARENA_LINES,
-	.cols = ARENA_COLS,
-	.matrix = {
-		{2, 2, 2, 2, 2, 2, 2, 2, 2, 2},
-		{2, 1, 1, 1, 2, 1, 1, 1, 1, 2},
-		{2, 1, 2, 2, 2, 2, 2, 2, 1, 2},
-		{2, 1, 2, 1, 1, 2, 1, 2, 1, 2},
-		{2, 1, 2, 1, 2, 2, 1, 2, 1, 2},
-		{2, 2, 2, 1, 2, 2, 1, 2, 2, 2},
-		{2, 1, 2, 1, 1, 1, 1, 2, 1, 2},
-		{2, 1, 2, 2, 2, 2, 2, 2, 1, 2},
-		{2, 1, 1, 1, 1, 1, 1, 1, 1, 2},
-		{2, 2, 2, 2, 2, 2, 2, 2, 2, 2}
-	},
-	.max_score = 0
 };
 
 Arena *p_arena = &arena;
