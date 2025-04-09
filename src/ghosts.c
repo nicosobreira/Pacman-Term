@@ -1,6 +1,19 @@
 #include "ghosts.h"
 #include "math.h"
 
+typedef struct Clock {
+	double start;
+	double finish;
+} Clock;
+
+bool ClockUpdate(double elapsed, Clock *clock) {
+	if ((clock->start += elapsed) >= clock->finish) {
+		clock->start = 0;
+		return true;
+	}
+	return false;
+}
+
 void updateGhost(Ghost *ghost, Player *player, Arena *arena) {
 	switch (ghost->mode) {
 		case GHOST_MODE_CHASE:
