@@ -13,6 +13,7 @@
 #include <unistd.h>
 
 #define PAUSE_MESSAGE_LEN (3)
+
 #define FPS (6.0)
 #define MS_PER_UPDATE (1.0 / FPS)
 
@@ -103,7 +104,7 @@ int main(void) {
 void update() {
 	/* Update AI */
 	updateGhost(&red, p_player, p_arena);
-	
+
 	/* Check ghost x player collision (Game over) */
 	if (red.pos.x == p_player->pos.x && red.pos.y == p_player->pos.y) {
 		restart(p_arena, p_player);
@@ -164,8 +165,8 @@ void draw(Arena *arena, Player *player) {
 	mvwprintw(
 			win,
 			arena->pos.y + arena->matrix.lines + 1,
-			middleTextX(arena->pos.x + arena->matrix.cols, message), "%s%i | %i",
-			message, player->score, arena->max_score
+			arena->pos.x + arena->middle.x,
+			"%s%i | %i", message, player->score, arena->max_score
 			);
 	drawArena(win, arena);
 	drawObject(win, &player->pos, player->ch, 4, arena);
@@ -179,6 +180,8 @@ void setPosition(Arena *arena, Player *player, Vector *middle) {
 	middle->y = (int)round(LINES / 2.0);
 	arena->middle.x = (int)round(arena->matrix.cols / 2.0);
 	arena->middle.y = (int)round(arena->matrix.lines / 2.0);
+	arena->pos.x = middle->x - arena->matrix.cols;
+	arena->pos.y = middle->y - arena->middle.y;
 	player->pos.x = arena->spawn_player.x;
 	player->pos.y = arena->spawn_player.y;
 	red.pos.x = arena->spawn_ghost.x;
