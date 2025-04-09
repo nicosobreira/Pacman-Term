@@ -14,4 +14,4 @@ bool objectCollisionVectorY(Vector *pos, Arena *arena);
 
 bool objectCollisionVector(Vector *pos, Arena *arena);
 
-void drawObject(WINDOW *, Vector *, char ch, int color, Arena *);
+void drawObject(WINDOW *win, Vector *pos, char ch, int color, Arena *arena);

@@ -10,11 +10,11 @@
 #define DOWN (1)
 
 typedef struct Player {
-    Vector pos;
-    Vector vel;
-    char ch;
-    int color;
-    int score;
+	Vector pos;
+	Vector vel;
+	int color;
+	int score;
+	char ch;
 } Player;
 
 void updatePlayer(Player *, Arena *);

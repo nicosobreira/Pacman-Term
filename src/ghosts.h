@@ -10,21 +10,32 @@
 #define POSSIBLE_VELOCITY (3)
 #define GHOSTS_MAX (4)
 
-#define CHASE (1)
-#define SCATTER (2)
-#define FRIGHTENED (3)
-#define EATEN (4)
+typedef enum {
+	GHOST_TYPE_RED,
+	GHOST_TYPE_PINK,
+	GHOST_TYPE_CYAN,
+	GHOST_TYPE_ORANGE
+} GhostTypes;
+
+typedef enum {
+	GHOST_MODE_CHASE,
+	GHOST_MODE_SCATTER,
+	GHOST_MODE_FRIGHTENED,
+	GHOST_MODE_EATEN
+} GhostModes;
 
 typedef struct Ghost {
-    Vector pos;
-    Vector vel;
-    Vector target;
-    int color;
+	Vector pos;
+	Vector vel;
+	Vector target;
+	int color;
 	int mode;
-    char ch;
+	int type;
+	char ch;
 } Ghost;
 
 int getVelocityPriority(Vector *vec);
+void ghostChase(Ghost *ghost, Player *player, Arena *arena);
 void ghostCheckVelocity(Ghost *ghost, Vector *vel, Arena *arena);
 void ghostFollowTarget(Ghost *ghost, Vector *target, Arena *arena);
 void updateGhost(Ghost *, Player *, Arena *);

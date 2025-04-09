@@ -1,5 +1,7 @@
 #include "arena.h"
 
+// TODO If the game restart the inside of the ghosts "nest" gets points!
+
 char ARENA_CHARS[] = {' ', '#', '.', 'o'};
 
 // char fallback_arena_matrix[FALLBACK_ARENA_LINES][FALLBACK_ARENA_COLS] = {
@@ -27,8 +29,10 @@ char ARENA_CHARS[] = {' ', '#', '.', 'o'};
 
 Arena newArenaFile(char *arena_file_name) {
 	Arena arena = {
-		.pos = {5, 5},
+		.pos = {0, 0},
 		.middle = {0, 0},
+		.spawn_ghost = {0, 0},
+		.spawn_player = {0, 0},
 		.matrix = {0, 0, NULL},
 		.max_score = 0
 	};
@@ -47,21 +51,31 @@ Arena newArenaFile(char *arena_file_name) {
 	char buffer[BUFFER_SIZE];
 	fgets(buffer, sizeof(buffer), arena_file);
 
-	int lines, cols;
-	sscanf("LINES=%d COLS=%d", &lines, &cols);
-	arena.matrix.lines = lines;
-	arena.matrix.cols = cols;
-	arena.matrix = newMatrix(lines, cols);
+	sscanf(buffer, "LINES=%d COLS=%d", &arena.matrix.lines, &arena.matrix.cols);
+	arena.matrix = newMatrix(arena.matrix.lines, arena.matrix.cols);
 
 	int i = 0, j = 0;
 	char ch;
-	while (ch = fgetch(arena_file) != EOF) {
+	while ((ch = fgetc(arena_file)) != EOF) {
 		if (ch == '\n') {
 			j = 0;
 			i++;
 			continue;
 		}
-		arena.matrix.values[i][j] = ch;
+		if (ch == SPAWN_PLAYER) {
+			arena.spawn_player.x = j;
+			arena.spawn_player.y = i;
+			arena.matrix.values[i][j] = POINT;
+		} else if (ch == SPAWN_GHOST) {
+			arena.spawn_ghost.x = j;
+			arena.spawn_ghost.y = i;
+			arena.matrix.values[i][j] = EMPTY;
+		} else if (ch == POINT) {
+			arena.matrix.values[i][j] = ch;
+			arena.max_score++;
+		} else {
+			arena.matrix.values[i][j] = ch;
+		}
 		j++;
 	}
 
