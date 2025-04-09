@@ -18,8 +18,7 @@ LDFLAGS := -lm -lncurses
 RELEASE_CFLAGS := -O3 -march=native -flto -fno-plt -pipe
 RELEASE_LDFLAGS := -flto -fno-plt -s
 
-DEBUG_CFLAGS :=
-# DEBUG_CFLAGS += -g3 -Og
+DEBUG_CFLAGS := -g3 -Og
 # DEBUG_CFLAGS += -fsanitize=address,undefined -fno-omit-frame-pointer
 
 DEBUG_LDFLAGS :=
