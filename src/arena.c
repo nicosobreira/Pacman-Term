@@ -65,7 +65,7 @@ Arena newArenaFile(char *arena_file_name) {
 		if (ch == SPAWN_PLAYER) {
 			arena.spawn_player.x = j;
 			arena.spawn_player.y = i;
-			arena.matrix.values[i][j] = POINT;
+			arena.matrix.values[i][j] = EMPTY;
 		} else if (ch == SPAWN_GHOST) {
 			arena.spawn_ghost.x = j;
 			arena.spawn_ghost.y = i;

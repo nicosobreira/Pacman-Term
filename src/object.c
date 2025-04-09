@@ -1,14 +1,14 @@
 #include "object.h"
 
 bool objectCollisionX(int x, int y, Arena *arena) {
-	if (x >= arena->matrix.cols || x < 0 || arena->matrix.values[y][x] == WALL) {
+	if (x >= arena->matrix.cols || x <= 0 || arena->matrix.values[y][x] == WALL) {
 		return true;
 	}
 	return false;
 }
 
 bool objectCollisionY(int x, int y, Arena *arena) {
-	if (y >= arena->matrix.lines || y < 0 || arena->matrix.values[y][x] == WALL) {
+	if (y >= arena->matrix.lines || y <= 0 || arena->matrix.values[y][x] == WALL) {
 		return true;
 	}
 	return false;
