@@ -13,7 +13,7 @@ void updatePlayer(Player *player, Arena *arena) {
 		player->pos.x -= player->vel.x;
 	}
 
-	if (player->pos.y >= arena->matrix.lines) {
+	if (player->pos.y > arena->matrix.lines) {
 		player->pos.y = 0;
 	} else if (player->pos.y < 0) {
 		player->pos.y = arena->matrix.lines;
