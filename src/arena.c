@@ -33,7 +33,7 @@ Arena newArenaFile(char *arena_file_name) {
 		.middle = {0, 0},
 		.spawn_ghost = {0, 0},
 		.spawn_player = {0, 0},
-		.matrix = {0, 0, NULL},
+		.matrix = {0, 0, 0},
 		.max_score = 0
 	};
 
