@@ -5,10 +5,19 @@ void updatePlayer(Player *player, Arena *arena) {
 	player->pos.x += player->vel.x;
 	player->pos.y += player->vel.y;
 
-	if (objectCollisionVectorX(&player->pos, arena)) {
+	if (player->pos.x >= arena->matrix.cols) {
+		player->pos.x = 0;
+	} else if (player->pos.x < 0) {
+		player->pos.x = arena->matrix.cols;
+	} else if (arena->matrix.values[(int)player->pos.y][(int)player->pos.x] == WALL) {
 		player->pos.x -= player->vel.x;
 	}
-	if (objectCollisionVectorY(&player->pos, arena)) {
+
+	if (player->pos.y >= arena->matrix.lines) {
+		player->pos.y = 0;
+	} else if (player->pos.y < 0) {
+		player->pos.y = arena->matrix.lines;
+	} else if (arena->matrix.values[(int)player->pos.y][(int)player->pos.x] == WALL) {
 		player->pos.y -= player->vel.y;
 	}
 
