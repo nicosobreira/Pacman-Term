@@ -12,6 +12,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+// BUG When the Ghost position goes beyond the arena dimensions the game crash
+
 #define PAUSE_MESSAGE_LEN (3)
 
 #define FPS (6.0)
@@ -46,7 +48,7 @@ Game game = {
 char *PAUSE_MESSAGE[PAUSE_MESSAGE_LEN] = {
 	"Paused",
 	"Press R to Restart",
-	"Press Q to quit"
+	"Press Q to Quit"
 };
 
 Player player = {
@@ -139,7 +141,6 @@ void initGame() {
 
 	arena = newArenaFile("maze.txt");
 	setPosition(p_arena, p_player, &middle);
-	getMaxScore(p_arena);
 	game.is_running = true;
 	game.is_paused = false;
 }
@@ -154,10 +155,13 @@ void closeGame() {
 void draw(Arena *arena, Player *player) {
 	erase();
 	if (game.is_paused) {
-		int y_to_print = (int)arena->pos.y + arena->matrix.lines / 2;
-		int x_to_print = (int)arena->pos.x + arena->matrix.cols;
 		for (int i = 0; i < PAUSE_MESSAGE_LEN; i++) {
-			mvwprintw(win, y_to_print + i, x_to_print, "%s", PAUSE_MESSAGE[i]);
+			mvwprintw(
+					win,
+					arena->pos.y + arena->middle.y + i,
+					arena->pos.x + arena->middle.x,
+					"%s", PAUSE_MESSAGE[i]
+					);
 		}
 		return;
 	}
@@ -198,12 +202,15 @@ void restart(Arena *arena, Player *player) {
 }
 
 void input(Player *player, Arena *arena) {
-	int key = wgetch(win);
-	inputMenu(key, player, arena);
+	int key;
+	// Ncurses will give input until wgetch return ERR
+	while ((key = wgetch(win)) != ERR) {
+		inputMenu(key, player, arena);
 
-	if (game.is_paused) return;
+		if (game.is_paused) return;
 
-	inputPlayer(key, player, arena);
+		inputPlayer(key, player, arena);
+	}
 }
 
 void inputMenu(int key, Player *player, Arena *arena) {
