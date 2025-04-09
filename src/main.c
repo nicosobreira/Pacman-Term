@@ -72,7 +72,7 @@ Arena arena;
 Arena *p_arena = &arena;
 Vector arena_middle;
 
-double lag = .0, previous = .0, current = .0, elapsed = .0;
+double lag = .0, previous = .0, current = .0, delta = .0;
 
 /// Game loop
 int main(void) {
@@ -81,9 +81,9 @@ int main(void) {
 	previous = getCurrentTime();
 	while (game.is_running) {
 		current = getCurrentTime();
-		elapsed = current - previous;
+		delta = current - previous;
 		previous = current;
-		lag += elapsed;
+		lag += delta;
 
 		input(p_player, p_arena);
 
@@ -103,13 +103,14 @@ int main(void) {
 void update() {
 	/* Update AI */
 	updateGhost(&red, p_player, p_arena);
-
-	updatePlayer(p_player, p_arena);
-
+	
 	/* Check ghost x player collision (Game over) */
 	if (red.pos.x == p_player->pos.x && red.pos.y == p_player->pos.y) {
 		restart(p_arena, p_player);
 	}
+
+	updatePlayer(p_player, p_arena);
+
 
 	/* Check is the player win */
 	if (player.score >= arena.max_score) {
