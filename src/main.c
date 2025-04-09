@@ -114,7 +114,6 @@ void update() {
 
 	updatePlayer(p_player, p_arena);
 
-
 	/* Check is the player win */
 	if (player.score >= arena.max_score) {
 		restart(p_arena, p_player);
