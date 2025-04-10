@@ -116,3 +116,15 @@ void substituteArena(Arena *arena, int match, int subst) {
 		}
 	}
 }
+
+int getBottomArena(Arena *arena) {
+	return arena->pos.y + arena->matrix.lines;
+}
+
+int getMiddleXArena(Arena *arena) {
+	return arena->pos.x + arena->middle.x;
+}
+
+int getMiddleYArena(Arena *arena) {
+	return arena->pos.y + arena->middle.y;
+}

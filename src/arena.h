@@ -28,3 +28,9 @@ void drawArena(WINDOW *, Arena *);
 void getMaxScore(Arena *arena);
 
 void substituteArena(Arena *arena, int match, int subst);
+
+int getBottomArena(Arena *arena);
+
+int getMiddleXArena(Arena *arena);
+
+int getMiddleYArena(Arena *arena);

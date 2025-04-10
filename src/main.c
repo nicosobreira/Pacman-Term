@@ -28,7 +28,11 @@ typedef struct {
 void input(Player *, Arena *);
 void inputMenu(int key, Player *, Arena *);
 void update(void);
+
 void draw(Arena *, Player *);
+void drawPause(WINDOW *win, Arena *arena);
+void drawScore(WINDOW *win, Arena *arena, Player *player);
+
 void initGame(void);
 void closeGame(void);
 void closeGameDie(int);
@@ -154,26 +158,33 @@ void closeGame() {
 void draw(Arena *arena, Player *player) {
 	erase();
 	if (game.is_paused) {
-		for (int i = 0; i < PAUSE_MESSAGE_LEN; i++) {
-			mvwprintw(
-					win,
-					arena->pos.y + arena->middle.y + i,
-					arena->pos.x + arena->middle.x,
-					"%s", PAUSE_MESSAGE[i]
-					);
-		}
+		drawPause(win, arena);
 		return;
 	}
-	char *message = "Score: ";
-	mvwprintw(
-			win,
-			arena->pos.y + arena->matrix.lines + 1,
-			arena->pos.x + arena->middle.x,
-			"%s%i | %i", message, player->score, arena->max_score
-			);
 	drawArena(win, arena);
 	drawObject(win, &player->pos, player->ch, 4, arena);
 	drawObject(win, &red.pos, red.ch, red.color, arena);
+	drawScore(win, arena, player);
+}
+
+void drawPause(WINDOW *win, Arena *arena) {
+	for (int i = 0; i < PAUSE_MESSAGE_LEN; i++) {
+		mvwprintw(
+				win,
+				getMiddleYArena(arena) + i,
+				getMiddleXArena(arena),
+				"%s", PAUSE_MESSAGE[i]
+				);
+	}
+}
+
+void drawScore(WINDOW *win, Arena *arena, Player *player) {
+	mvwprintw(
+			win,
+			getBottomArena(arena) + 1,
+			getMiddleXArena(arena),
+			"Score: %i | %i", player->score, arena->max_score
+			);
 }
 
 void closeGameDie(int i) { exit(i); }
