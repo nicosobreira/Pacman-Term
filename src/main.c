@@ -107,14 +107,14 @@ void update() {
 	/* Update AI */
 	updateGhost(&red, p_player, p_arena);
 
-	/* Check ghost x player collision (Game over) */
+	/* Ghost and Player collision, game over */
 	if (red.pos.x == p_player->pos.x && red.pos.y == p_player->pos.y) {
 		restart(p_arena, p_player);
 	}
 
 	updatePlayer(p_player, p_arena);
 
-	/* Check is the player win */
+	/* Player win */
 	if (player.score >= arena.max_score) {
 		restart(p_arena, p_player);
 	}
