@@ -8,7 +8,7 @@ void updatePlayer(Player *player, Arena *arena) {
 	if (player->pos.x >= arena->matrix.cols) {
 		player->pos.x = 0;
 	} else if (player->pos.x < 0) {
-		player->pos.x = arena->matrix.cols;
+		player->pos.x = arena->matrix.cols - 1;
 	} else if (arena->matrix.values[(int)player->pos.y][(int)player->pos.x] == WALL) {
 		player->pos.x -= player->vel.x;
 	}
