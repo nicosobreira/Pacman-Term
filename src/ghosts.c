@@ -27,8 +27,7 @@ void updateGhost(Ghost *ghost, Player *player, Arena *arena) {
 			break;
 	}
 
-	ghost->pos.x += ghost->vel.x;
-	ghost->pos.y += ghost->vel.y;
+	objectMove(&ghost->pos, &ghost->vel, arena);
 }
 
 void ghostChase(Ghost *ghost, Player *player, Arena *arena) {

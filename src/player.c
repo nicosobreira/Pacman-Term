@@ -2,28 +2,11 @@
 #include "player.h"
 
 void updatePlayer(Player *player, Arena *arena) {
-	player->pos.x += player->vel.x;
-	player->pos.y += player->vel.y;
+	objectMove(&player->pos, &player->vel, arena);
 
-	if (player->pos.x >= arena->matrix.cols) {
-		player->pos.x = 0;
-	} else if (player->pos.x < 0) {
-		player->pos.x = arena->matrix.cols - 1;
-	} else if (arena->matrix.values[(int)player->pos.y][(int)player->pos.x] == WALL) {
-		player->pos.x -= player->vel.x;
-	}
-
-	if (player->pos.y > arena->matrix.lines) {
-		player->pos.y = 0;
-	} else if (player->pos.y < 0) {
-		player->pos.y = arena->matrix.lines;
-	} else if (arena->matrix.values[(int)player->pos.y][(int)player->pos.x] == WALL) {
-		player->pos.y -= player->vel.y;
-	}
-
-	if (arena->matrix.values[(int)player->pos.y][(int)player->pos.x] == POINT) {
+	if (getArenaValue(player->pos.y, player->pos.x, arena) == POINT) {
+		changeArenaValue(player->pos.y, player->pos.x, EMPTY, arena);
 		player->score++;
-		arena->matrix.values[(int)player->pos.y][(int)player->pos.x] = EMPTY;
 	}
 }
 
@@ -66,4 +49,11 @@ void inputPlayer(int key, Player *player, Arena *arena) {
 			player->vel.x = 0;
 			break;
 	}
+}
+
+void playerReset(Player *player) {
+	player->score = 0;
+	player->vel.x = 0;
+	player->vel.y = 0;
+	player->ch = 'o';
 }

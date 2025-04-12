@@ -1,6 +1,25 @@
 #include "matrix.h"
 #include "constants.h"
 #include <stdlib.h>
+#include <errno.h>
+
+static void isIndexOutOfBounds(int i, int j, CharMatrix *matrix) {
+	if (j < 0 || j > matrix->cols ||
+		i < 0 || i > matrix->lines) {
+		perror("Invalid index");
+		exit(10);
+	}
+}
+
+char getMatrixValue(int i, int j, CharMatrix *matrix) {
+	isIndexOutOfBounds(i, j, matrix);
+	return matrix->values[i][j];
+}
+
+void changeMatrixValue(int i, int j, char value, CharMatrix *matrix) {
+	isIndexOutOfBounds(i, j, matrix);
+	matrix->values[i][j] = value;
+}
 
 CharMatrix newMatrix(int lines, int cols) {
 	CharMatrix matrix = {.values = NULL, .lines = lines, .cols = cols};
@@ -44,9 +63,9 @@ CharMatrix newMatrixValues(int lines, int cols, char values[lines][cols]) {
 void printMatrixFile(WINDOW *win, const char *file_name) {
 	char file_path[BUFFER_SIZE];
 	snprintf(file_path, sizeof(file_path), "%s%s%s", ASSETS_FOLDER,
-			FILE_SEPARATOR, file_name);
+		  FILE_SEPARATOR, file_name);
 	FILE *file = fopen(file_path, "r");
-		if (file == NULL) {
+	if (file == NULL) {
 		return;
 	}
 	char buffer[BUFFER_SIZE];

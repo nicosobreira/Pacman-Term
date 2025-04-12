@@ -10,14 +10,14 @@
 #define POSSIBLE_VELOCITY (3)
 #define GHOSTS_MAX (4)
 
-typedef enum {
+typedef enum GhostTypes {
 	GHOST_TYPE_RED,
 	GHOST_TYPE_PINK,
 	GHOST_TYPE_CYAN,
 	GHOST_TYPE_ORANGE
 } GhostTypes;
 
-typedef enum {
+typedef enum GhostModes {
 	GHOST_MODE_CHASE,
 	GHOST_MODE_SCATTER,
 	GHOST_MODE_FRIGHTENED,
@@ -29,7 +29,7 @@ typedef struct Ghost {
 	Vector vel;
 	Vector target;
 	int color;
-	int mode;
+	GhostModes mode;
 	int type;
 	char ch;
 } Ghost;

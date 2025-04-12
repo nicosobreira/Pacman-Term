@@ -21,13 +21,21 @@ typedef struct {
     int max_score;
 } Arena;
 
+char getArenaValue(int i, int j, Arena *arena);
+
+void changeArenaValue(int i, int j, char value, Arena *arena);
+
 Arena newArenaFile(char *arena_file_name);
+
+void loadArena(Arena *arena, char* arena_file_name);
 
 void drawArena(WINDOW *, Arena *);
 
 void getMaxScore(Arena *arena);
 
 void substituteArena(Arena *arena, int match, int subst);
+
+void setArenaPositions(Arena *arena, Vector *middle);
 
 int getBottomArena(Arena *arena);
 

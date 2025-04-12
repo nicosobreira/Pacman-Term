@@ -10,6 +10,10 @@ typedef struct {
 	int cols;
 } CharMatrix;
 
+char getMatrixValue(int i, int j, CharMatrix *matrix);
+
+void changeMatrixValue(int i, int j, char value, CharMatrix *matrix);
+
 CharMatrix newMatrix(int lines, int cols);
 
 CharMatrix newMatrixValues(int lines, int cols, char values[lines][cols]);

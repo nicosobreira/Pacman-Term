@@ -4,6 +4,8 @@
 #include "vector.h"
 #include "arena.h"
 
+void objectMove(Vector *position, Vector *velocity, Arena *arena);
+
 bool objectCollisionX(int x, int y, Arena *arena);
 bool objectCollisionY(int x, int y, Arena *arena);
 

@@ -20,3 +20,5 @@ typedef struct Player {
 void updatePlayer(Player *, Arena *);
 
 void inputPlayer(int key, Player *player, Arena *arena);
+
+void playerReset(Player *player);

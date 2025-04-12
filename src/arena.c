@@ -1,3 +1,4 @@
+#include <math.h>
 #include "arena.h"
 
 // TODO If the game restart the inside of the ghosts "nest" gets points!
@@ -37,22 +38,28 @@ Arena newArenaFile(char *arena_file_name) {
 		.max_score = 0
 	};
 
+	loadArena(&arena, arena_file_name);
+
+	return arena;
+}
+
+void loadArena(Arena *arena, char* arena_file_name) {
 	char arena_path[BUFFER_SIZE];
 	snprintf(arena_path, sizeof(arena_path), "%s%s%s", ASSETS_FOLDER, FILE_SEPARATOR, arena_file_name);
 
 	FILE *arena_file = fopen(arena_path, "r");
+	// Error on open the file, using arena fallback
 	if (arena_file == NULL) {
-		// Error on open the file, using arena fallback
-		arena.matrix.lines = FALLBACK_ARENA_LINES;
-		arena.matrix.cols = FALLBACK_ARENA_COLS;
-		return arena;
+		arena->matrix.lines = FALLBACK_ARENA_LINES;
+		arena->matrix.cols = FALLBACK_ARENA_COLS;
+		return;
 	}
 
 	char buffer[BUFFER_SIZE];
 	fgets(buffer, sizeof(buffer), arena_file);
 
-	sscanf(buffer, "LINES=%d COLS=%d", &arena.matrix.lines, &arena.matrix.cols);
-	arena.matrix = newMatrix(arena.matrix.lines, arena.matrix.cols);
+	sscanf(buffer, "LINES=%d COLS=%d", &arena->matrix.lines, &arena->matrix.cols);
+	arena->matrix = newMatrix(arena->matrix.lines, arena->matrix.cols);
 
 	int i = 0, j = 0;
 	char ch;
@@ -63,23 +70,22 @@ Arena newArenaFile(char *arena_file_name) {
 			continue;
 		}
 		if (ch == SPAWN_PLAYER) {
-			arena.spawn_player.x = j;
-			arena.spawn_player.y = i;
-			arena.matrix.values[i][j] = EMPTY;
+			arena->spawn_player.x = j;
+			arena->spawn_player.y = i;
+			changeArenaValue(i, j, EMPTY, arena);
 		} else if (ch == SPAWN_GHOST) {
-			arena.spawn_ghost.x = j;
-			arena.spawn_ghost.y = i;
-			arena.matrix.values[i][j] = EMPTY;
+			arena->spawn_ghost.x = j;
+			arena->spawn_ghost.y = i;
+			changeArenaValue(i, j, EMPTY, arena);
 		} else if (ch == POINT) {
-			arena.matrix.values[i][j] = ch;
-			arena.max_score++;
+			changeArenaValue(i, j, ch, arena);
+			arena->max_score++;
 		} else {
-			arena.matrix.values[i][j] = ch;
+			changeArenaValue(i, j, ch, arena);
 		}
 		j++;
 	}
-
-	return arena;
+	fclose(arena_file);
 }
 
 void drawArena(WINDOW *win, Arena *arena) {
@@ -90,7 +96,7 @@ void drawArena(WINDOW *win, Arena *arena) {
 					win,
 					i + arena->pos.y,
 					arena->pos.x + j * OFFSET,
-					arena->matrix.values[i][j]
+					getArenaValue(i, j, arena)
 					);
 			/*SET_COLOR_OFF(*value + 1);*/
 		}
@@ -100,7 +106,7 @@ void drawArena(WINDOW *win, Arena *arena) {
 void getMaxScore(Arena *arena) {
 	for (int i = 0; i < arena->matrix.lines; i++) {
 		for (int j = 0; j < arena->matrix.cols; j++) {
-			if (arena->matrix.values[i][j] == POINT) {
+			if (getArenaValue(i, j, arena) == POINT) {
 				arena->max_score++;
 			}
 		}
@@ -110,11 +116,26 @@ void getMaxScore(Arena *arena) {
 void substituteArena(Arena *arena, int match, int subst) {
 	for (int i = 0; i < arena->matrix.lines; i++) {
 		for (int j = 0; j < arena->matrix.cols; j++) {
-			if (arena->matrix.values[i][j] == match) {
-				arena->matrix.values[i][j] = subst;
+			if (getArenaValue(i, j, arena) == match) {
+				changeArenaValue(i, j, subst, arena);
 			}
 		}
 	}
+}
+
+char getArenaValue(int i, int j, Arena *arena) {
+	return getMatrixValue(i, j, &arena->matrix);
+}
+
+void changeArenaValue(int i, int j, char value, Arena *arena) {
+	changeMatrixValue(i, j, value, &arena->matrix);
+}
+
+void setArenaPositions(Arena *arena, Vector *middle) {
+	arena->middle.x = (int)round(arena->matrix.cols / 2.0);
+	arena->middle.y = (int)round(arena->matrix.lines / 2.0);
+	arena->pos.x = middle->x - arena->matrix.cols;
+	arena->pos.y = middle->y - arena->middle.y;
 }
 
 int getBottomArena(Arena *arena) {
