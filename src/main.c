@@ -83,7 +83,6 @@ double lag = .0, previous = .0, current = .0, delta = .0;
 /// Game loop
 int main(void) {
 	initGame(pGame);
-	lag = 0.0;
 	previous = getCurrentTime();
 	while (pGame->is_running) {
 		current = getCurrentTime();
@@ -134,6 +133,7 @@ void initGame(Game *pGame) {
 	pGame->win = initscr();
 	pGame->pArena = &pGame->arena;
 	pGame->pPlayer = &pGame->player;
+
 	start_color();
 	curs_set(0);
 	raw();
