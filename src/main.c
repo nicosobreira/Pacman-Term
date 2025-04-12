@@ -25,6 +25,8 @@ typedef struct Game {
 	Arena arena;
 	Player player;
 	Ghost red;
+	Arena *pArena;
+	Player *pPlayer;
 	WINDOW *win;
 	Vector middle;
 	bool is_paused;
@@ -106,14 +108,14 @@ int main(void) {
 
 void update(Game *pGame) {
 	// Update AI
-	updateGhost(&pGame->red, &pGame->player, &pGame->arena);
+	updateGhost(&pGame->red, pGame->pPlayer, pGame->pArena);
 
 	// TODO Put the game over logic into ghost.c
 	// Ghost and Player collision, game over
 	if (pGame->red.pos.x == pGame->player.pos.x && pGame->red.pos.y == pGame->player.pos.y) {
 		restart(pGame);
 	}
-	updatePlayer(&pGame->player, &pGame->arena);
+	updatePlayer(pGame->pPlayer, pGame->pArena);
 
 	// Player win
 	if (pGame->player.score >= pGame->arena.max_score) {
@@ -130,6 +132,8 @@ void initGame(Game *pGame) {
 	signal(SIGHUP, closeGameDie);
 
 	pGame->win = initscr();
+	pGame->pArena = &pGame->arena;
+	pGame->pPlayer = &pGame->player;
 	start_color();
 	curs_set(0);
 	raw();
@@ -158,9 +162,9 @@ void draw(Game *pGame) {
 		drawPause(pGame);
 		return;
 	}
-	drawArena(pGame->win, &pGame->arena);
-	drawObject(pGame->win, &pGame->player.pos, pGame->player.ch, 4, &pGame->arena);
-	drawObject(pGame->win, &pGame->red.pos, pGame->red.ch, pGame->red.color, &pGame->arena);
+	drawArena(pGame->win, pGame->pArena);
+	drawObject(pGame->win, &pGame->player.pos, pGame->player.ch, 4, pGame->pArena);
+	drawObject(pGame->win, &pGame->red.pos, pGame->red.ch, pGame->red.color, pGame->pArena);
 	drawScore(pGame);
 }
 
@@ -168,8 +172,8 @@ void drawPause(Game *pGame) {
 	for (int i = 0; i < PAUSE_MESSAGE_LEN; i++) {
 		mvwprintw(
 			pGame->win,
-			getMiddleYArena(&pGame->arena) + i,
-			getMiddleXArena(&pGame->arena),
+			getMiddleYArena(pGame->pArena) + i,
+			getMiddleXArena(pGame->pArena),
 			"%s", PAUSE_MESSAGE[i]
 		);
 	}
@@ -178,8 +182,8 @@ void drawPause(Game *pGame) {
 void drawScore(Game *pGame) {
 	mvwprintw(
 		pGame->win,
-		getBottomArena(&pGame->arena) + 1,
-		getMiddleXArena(&pGame->arena),
+		getBottomArena(pGame->pArena) + 1,
+		getMiddleXArena(pGame->pArena),
 		"Score: %i | %i", pGame->player.score, pGame->arena.max_score
 	);
 }
@@ -187,7 +191,7 @@ void drawScore(Game *pGame) {
 void setPositions(Game *pGame) {
 	pGame->middle.x = (int)round(COLS / 2.0);
 	pGame->middle.y = (int)round(LINES / 2.0);
-	setArenaPositions(&pGame->arena, &pGame->middle);
+	setArenaPositions(pGame->pArena, &pGame->middle);
 	pGame->player.pos.x = pGame->arena.spawn_player.x;
 	pGame->player.pos.y = pGame->arena.spawn_player.y;
 	pGame->red.pos.x = pGame->arena.spawn_ghost.x;
@@ -195,9 +199,9 @@ void setPositions(Game *pGame) {
 }
 
 void restart(Game *pGame) {
-	loadArena(&pGame->arena, ARENA_FILE);
+	loadArena(pGame->pArena, ARENA_FILE);
 	setPositions(pGame);
-	playerReset(&pGame->player);
+	playerReset(pGame->pPlayer);
 }
 
 void input(Game *pGame) {
@@ -208,7 +212,7 @@ void input(Game *pGame) {
 
 		if (pGame->is_paused) return;
 
-		inputPlayer(key, &pGame->player, &pGame->arena);
+		inputPlayer(key, pGame->pPlayer, pGame->pArena);
 	}
 }
 
