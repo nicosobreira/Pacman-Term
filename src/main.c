@@ -11,6 +11,7 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <time.h>
 
 // BUG When the Ghost position goes beyond the arena dimensions the game crash
 
@@ -43,6 +44,7 @@ void drawPause(Game *);
 void drawScore(Game *);
 
 void initGame(Game *);
+void colorInit(void);
 void closeGame(void);
 void closeGameDie(int);
 void restart(Game *);
@@ -53,7 +55,7 @@ Game game = {
 		.pos = {0, 0},
 		.vel = {0, 1},
 		.ch = 'o',
-		.color = 3,
+		.color = COLOR_PAIR_YELLOW,
 		.score = 0
 	},
 	.red = {
@@ -63,7 +65,7 @@ Game game = {
 		.mode = GHOST_MODE_CHASE,
 		.type = GHOST_TYPE_RED,
 		.ch = 'M',
-		.color = 1
+		.color = COLOR_PAIR_RED
 	},
 	.is_paused = false,
 	.is_running = true,
@@ -84,6 +86,7 @@ double lag = .0, previous = .0, current = .0, delta = .0;
 int main(void) {
 	initGame(pGame);
 	previous = getCurrentTime();
+
 	while (pGame->is_running) {
 		current = getCurrentTime();
 		delta = current - previous;
@@ -122,6 +125,24 @@ void update(Game *pGame) {
 	}
 }
 
+void colorInit() {
+	if (!has_colors()) {
+		perror("Your terminal don't support colors");
+		exit(1);
+	}
+
+	start_color();
+	if (COLORS < 256) {
+		perror("Your terminal don't have 256 colors");
+		exit(2);
+	}
+
+	use_default_colors();
+	for (int i = 0; i < COLORS; i++) {
+		init_pair(i, i, -1);
+	}
+}
+
 void initGame(Game *pGame) {
 	// If the games stops or crashes return the terminal
 	atexit(closeGame);
@@ -134,10 +155,9 @@ void initGame(Game *pGame) {
 	pGame->pArena = &pGame->arena;
 	pGame->pPlayer = &pGame->player;
 
-	start_color();
+	colorInit();
 	curs_set(0);
-	raw();
-	// cbreak();
+	cbreak();
 	noecho();
 	keypad(pGame->win, TRUE);
 	nodelay(pGame->win, TRUE);
@@ -163,8 +183,20 @@ void draw(Game *pGame) {
 		return;
 	}
 	drawArena(pGame->win, pGame->pArena);
-	drawObject(pGame->win, &pGame->player.pos, pGame->player.ch, 4, pGame->pArena);
-	drawObject(pGame->win, &pGame->red.pos, pGame->red.ch, pGame->red.color, pGame->pArena);
+	drawObject(
+		pGame->win,
+		&pGame->player.pos,
+		pGame->player.ch,
+		pGame->player.color,
+		pGame->pArena
+	);
+	drawObject(
+		pGame->win,
+		&pGame->red.pos,
+		pGame->red.ch,
+		pGame->red.color,
+		pGame->pArena
+	);
 	drawScore(pGame);
 }
 

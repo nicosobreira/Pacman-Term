@@ -91,16 +91,31 @@ void loadArena(Arena *arena, char* arena_file_name) {
 void drawArena(WINDOW *win, Arena *arena) {
 	for (int i = 0; i < arena->matrix.lines; i++) {
 		for (int j = 0; j < arena->matrix.cols; j++) {
-			/*SET_COLOR_ON(*value + 1);*/
+			int color = getArenaColorValue(i, j, arena);
+			SET_COLOR_ON(color);
 			mvwaddch(
-					win,
-					i + arena->pos.y,
-					arena->pos.x + j * OFFSET,
-					getArenaValue(i, j, arena)
-					);
-			/*SET_COLOR_OFF(*value + 1);*/
+				win,
+				i + arena->pos.y,
+				arena->pos.x + j * OFFSET,
+				getArenaValue(i, j, arena)
+			);
+			SET_COLOR_OFF(color);
 		}
 	}
+}
+
+int getArenaColorValue(int i, int j, Arena *arena) {
+	switch (getArenaValue(i, j, arena)) {
+		case EMPTY:
+			return (COLOR_PAIR_DEFAULT);
+		case WALL:
+			return (COLOR_PAIR_BLUE);
+		case POINT:
+			return (COLOR_PAIR_ORANGE);
+		case POWER_UP:
+			return (COLOR_PAIR_YELLOW);
+	}
+	return -1;
 }
 
 void getMaxScore(Arena *arena) {

@@ -3,6 +3,7 @@
 #include "arena.h"
 #include "constants.h"
 #include "vector.h"
+#include <ncurses.h>
 
 #define LEFT (-1)
 #define RIGHT (1)
@@ -12,10 +13,12 @@
 typedef struct Player {
 	Vector pos;
 	Vector vel;
-	int color;
+	ColorPair color;
 	int score;
 	char ch;
 } Player;
+
+void drawPlayer(WINDOW *win, Player *player, Arena *arena);
 
 void updatePlayer(Player *, Arena *);
 

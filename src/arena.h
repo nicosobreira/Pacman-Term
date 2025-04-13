@@ -21,6 +21,8 @@ typedef struct {
     int max_score;
 } Arena;
 
+int getArenaColorValue(int i, int j, Arena *arena);
+
 char getArenaValue(int i, int j, Arena *arena);
 
 void changeArenaValue(int i, int j, char value, Arena *arena);

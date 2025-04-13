@@ -1,7 +1,5 @@
 #pragma once
 
-#include <ncurses.h>
-
 #define BUFFER_SIZE (1024)
 
 #define EMPTY ' '
@@ -12,8 +10,8 @@
 #define SPAWN_PLAYER 'P'
 
 #define OFFSET (2)	// Makes the drawing look nice
-#define SET_COLOR_ON(color) attron(COLOR_PAIR(-1))
-#define SET_COLOR_OFF(color) attroff(COLOR_PAIR(-1))
+#define SET_COLOR_ON(color) attron(COLOR_PAIR(color))
+#define SET_COLOR_OFF(color) attroff(COLOR_PAIR(color))
 
 #if defined(_WIN32) || defined(_WIN64)
 	#define FILE_SEPARATOR "\\"
@@ -30,3 +28,16 @@
 	#endif
 #endif
 
+#define COLOR_PAIR_DEFAULT (-1)
+
+typedef enum ColorPair {
+	COLOR_PAIR_BLACK = 0,
+	COLOR_PAIR_RED = 1,
+	COLOR_PAIR_GREEN = 2,
+	COLOR_PAIR_YELLOW = 3,
+	COLOR_PAIR_BLUE = 4,
+	COLOR_PAIR_MAGENTA = 5,
+	COLOR_PAIR_CYAN = 6,
+	COLOR_PAIR_WHITE = 7,
+	COLOR_PAIR_ORANGE = 214,
+} ColorPair;

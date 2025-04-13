@@ -1,8 +1,9 @@
 #pragma once
 
-#include <ncurses.h>
 #include "vector.h"
 #include "arena.h"
+#include "constants.h"
+#include <ncurses.h>
 
 void objectMove(Vector *position, Vector *velocity, Arena *arena);
 
@@ -16,4 +17,4 @@ bool objectCollisionVectorY(Vector *pos, Arena *arena);
 
 bool objectCollisionVector(Vector *pos, Arena *arena);
 
-void drawObject(WINDOW *win, Vector *pos, char ch, int color, Arena *arena);
+void drawObject(WINDOW *win, Vector *pos, char ch, ColorPair color, Arena *arena);

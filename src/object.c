@@ -53,8 +53,8 @@ bool objectCollisionVector(Vector *pos, Arena *arena) {
 	return objectCollision(pos->x, pos->y, arena);
 }
 
-void drawObject(WINDOW *win, Vector *pos, char ch, int color, Arena *arena) {
-	/*SET_COLOR_ON(color);*/
+void drawObject(WINDOW *win, Vector *pos, char ch, ColorPair color, Arena *arena) {
+	SET_COLOR_ON(color);
 	mvwaddch(win, arena->pos.y + pos->y, arena->pos.x + pos->x * OFFSET, ch);
-	/*SET_COLOR_OFF(color);*/
+	SET_COLOR_OFF(color);
 }
