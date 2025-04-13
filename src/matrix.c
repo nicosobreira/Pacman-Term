@@ -1,13 +1,14 @@
 #include "matrix.h"
-#include "constants.h"
+
 #include <stdlib.h>
-#include <errno.h>
+
+#include "constants.h"
+#include "error.h"
 
 static void isIndexOutOfBounds(int i, int j, CharMatrix *matrix) {
 	if (j < 0 || j > matrix->cols ||
 		i < 0 || i > matrix->lines) {
-		perror("Invalid index");
-		exit(10);
+		handle_error(12, "Matrix value out of bound");
 	}
 }
 
@@ -25,13 +26,13 @@ CharMatrix newMatrix(int lines, int cols) {
 	CharMatrix matrix = {.values = NULL, .lines = lines, .cols = cols};
 	matrix.values = malloc(sizeof(char *) * matrix.lines);
 	if (matrix.values == NULL) {
-		exit(1);
+		handle_error(5, "Matrix values allocation failed");
 	}
 
 	for (int i = 0; i < matrix.lines; i++) {
 		matrix.values[i] = malloc(sizeof(char) * matrix.cols);
 		if (matrix.values == NULL) {
-			exit(1);
+			handle_error(5, "Matrix values line allocation failed");
 		}
 		for (int j = 0; j < matrix.cols; j++) {
 			matrix.values[i][j] = MATRIX_DEFAULT_VALUES;
@@ -45,13 +46,13 @@ CharMatrix newMatrixValues(int lines, int cols, char values[lines][cols]) {
 	CharMatrix matrix = {.values = NULL, .lines = lines, .cols = cols};
 	matrix.values = malloc(sizeof(char *) * matrix.lines);
 	if (matrix.values == NULL) {
-		exit(1);
+		handle_error(5, "Matrix values allocation failed");
 	}
 
 	for (int i = 0; i < matrix.lines; i++) {
 		matrix.values[i] = malloc(sizeof(char) * matrix.cols);
 		if (matrix.values == NULL) {
-			exit(1);
+			handle_error(5, "Matrix values line allocation failed");
 		}
 		for (int j = 0; j < matrix.cols; j++) {
 			matrix.values[i][j] = values[i][j];

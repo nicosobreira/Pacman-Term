@@ -1,3 +1,10 @@
+#include <math.h>
+#include <ncurses.h>
+#include <signal.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <time.h>
+
 #include "arena.h"
 #include "constants.h"
 #include "ghosts.h"
@@ -6,14 +13,10 @@
 #include "player.h"
 #include "utils.h"
 #include "vector.h"
-#include <math.h>
-#include <ncurses.h>
-#include <signal.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <time.h>
+#include "error.h"
 
 // BUG When the Ghost position goes beyond the arena dimensions the game crash
+// BUG The ghost stays in the "chamber" until the player gets closer
 
 #define ARENA_FILE "maze.txt"
 
@@ -127,14 +130,12 @@ void update(Game *pGame) {
 
 void colorInit() {
 	if (!has_colors()) {
-		perror("Your terminal don't support colors");
-		exit(1);
+		handle_error(9, "Your terminal don't support colors");
 	}
 
 	start_color();
 	if (COLORS < 256) {
-		perror("Your terminal don't have 256 colors");
-		exit(2);
+		handle_error(10, "Your terminal don't support 256 colors");
 	}
 
 	use_default_colors();

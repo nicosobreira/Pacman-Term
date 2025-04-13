@@ -1,5 +1,6 @@
-#include "object.h"
 #include "player.h"
+
+#include "object.h"
 
 void updatePlayer(Player *player, Arena *arena) {
 	objectMove(&player->pos, &player->vel, arena);

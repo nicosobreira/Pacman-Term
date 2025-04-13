@@ -1,9 +1,10 @@
 #pragma once
 
+#include <ncurses.h>
+
 #include "constants.h"
 #include "matrix.h"
 #include "vector.h"
-#include <ncurses.h>
 
 #define FALLBACK_ARENA_LINES (10)
 #define FALLBACK_ARENA_COLS (10)

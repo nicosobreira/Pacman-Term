@@ -1,9 +1,10 @@
 #pragma once
 
+#include <ncurses.h>
+
 #include "arena.h"
 #include "constants.h"
 #include "vector.h"
-#include <ncurses.h>
 
 #define LEFT (-1)
 #define RIGHT (1)

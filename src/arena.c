@@ -1,5 +1,6 @@
-#include <math.h>
 #include "arena.h"
+
+#include <math.h>
 
 // TODO If the game restart the inside of the ghosts "nest" gets points!
 

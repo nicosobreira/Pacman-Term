@@ -1,13 +1,12 @@
 #pragma once
 
 #include "arena.h"
-#include "constants.h"
 #include "object.h"
 #include "player.h"
 #include "vector.h"
 
 #define INVALID_VELOCITY (255)
-#define POSSIBLE_VELOCITY (3)
+#define POSSIBLE_VELOCITY_LEN (3)
 #define GHOSTS_MAX (4)
 
 typedef enum GhostTypes {
@@ -28,7 +27,7 @@ typedef struct Ghost {
 	Vector pos;
 	Vector vel;
 	Vector target;
-	int color;
+	ColorPair color;
 	GhostModes mode;
 	int type;
 	char ch;

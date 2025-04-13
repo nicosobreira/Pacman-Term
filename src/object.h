@@ -1,9 +1,10 @@
 #pragma once
 
+#include <ncurses.h>
+
 #include "vector.h"
 #include "arena.h"
 #include "constants.h"
-#include <ncurses.h>
 
 void objectMove(Vector *position, Vector *velocity, Arena *arena);
 

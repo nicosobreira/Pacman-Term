@@ -1,18 +1,6 @@
 #include "ghosts.h"
-#include "math.h"
 
-typedef struct Clock {
-	double start;
-	double finish;
-} Clock;
-
-bool ClockUpdate(double elapsed, Clock *clock) {
-	if ((clock->start += elapsed) >= clock->finish) {
-		clock->start = 0;
-		return true;
-	}
-	return false;
-}
+#include <math.h>
 
 void updateGhost(Ghost *ghost, Player *player, Arena *arena) {
 	switch (ghost->mode) {
@@ -46,7 +34,7 @@ void ghostChase(Ghost *ghost, Player *player, Arena *arena) {
 
 /// Target system
 void ghostFollowTarget(Ghost *ghost, Vector *target, Arena *arena) {
-	Vector possible_vel[POSSIBLE_VELOCITY];
+	Vector possible_vel[POSSIBLE_VELOCITY_LEN];
 
 	possible_vel[0] = ghost->vel;
 	ghostCheckVelocity(ghost, &possible_vel[0], arena);
@@ -60,7 +48,7 @@ void ghostFollowTarget(Ghost *ghost, Vector *target, Arena *arena) {
 	// BUG if the value of INVALID_VELOCITY is smaller than the maximum distance possible in the arena it will occur a bug
 	float smallest_distance = 10000000;
 	int smallest_distance_index = 0;
-	for (int i = 0; i < POSSIBLE_VELOCITY; i++) {
+	for (int i = 0; i < POSSIBLE_VELOCITY_LEN; i++) {
 		if (possible_vel[i].x == INVALID_VELOCITY && possible_vel[i].y == INVALID_VELOCITY) continue;
 		float distance =
 			powf(ghost->pos.x + possible_vel[i].x - target->x, 2) +
