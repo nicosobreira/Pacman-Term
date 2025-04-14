@@ -25,7 +25,7 @@
 // Later in code:
 // fallback_arena.matrix = INIT_MATRIX;
 
-Arena newArenaFile(char *arena_file_name) {
+Arena newArenaFile(const char *arena_file_name) {
 	Arena arena = {
 		.pos = {0, 0},
 		.middle = {0, 0},
@@ -40,7 +40,7 @@ Arena newArenaFile(char *arena_file_name) {
 	return arena;
 }
 
-void loadArena(Arena *arena, char* arena_file_name) {
+void loadArena(Arena *arena, const char* arena_file_name) {
 	char arena_path[BUFFER_SIZE];
 	snprintf(arena_path, sizeof(arena_path), "%s%s%s", ASSETS_FOLDER, FILE_SEPARATOR, arena_file_name);
 

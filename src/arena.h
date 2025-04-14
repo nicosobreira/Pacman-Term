@@ -13,7 +13,7 @@
 extern char DRAW_VALUES[4];
 extern char fallback_arena_matrix[FALLBACK_ARENA_LINES][FALLBACK_ARENA_COLS];
 
-typedef struct {
+typedef struct Arena {
 	CharMatrix matrix;
     Vector pos;
     Vector middle;
@@ -22,22 +22,16 @@ typedef struct {
     int max_score;
 } Arena;
 
+Arena newArenaFile(const char *arena_file_name);
+void loadArena(Arena *arena, const char* arena_file_name);
+
 int getArenaColorValue(int i, int j, Arena *arena);
-
 char getArenaValue(int i, int j, Arena *arena);
-
 void changeArenaValue(int i, int j, char value, Arena *arena);
-
-Arena newArenaFile(char *arena_file_name);
-
-void loadArena(Arena *arena, char* arena_file_name);
 
 void drawArena(WINDOW *win, Arena *);
 
 void setArenaPositions(Arena *arena, Vector *middle);
-
 int getBottomArena(Arena *arena);
-
 int getMiddleXArena(Arena *arena);
-
 int getMiddleYArena(Arena *arena);
