@@ -5,9 +5,10 @@
 void updateGhost(Ghost *ghost, Player *player, Arena *arena) {
 	switch (ghost->mode) {
 		case GHOST_MODE_CHASE:
-			ghostChase(ghost, player, arena);
+			ghostChase(ghost, player);
 			break;
 		case GHOST_MODE_SCATTER:
+			ghostScatter(ghost, arena);
 			break;
 		case GHOST_MODE_FRIGHTENED:
 			break;
@@ -15,13 +16,14 @@ void updateGhost(Ghost *ghost, Player *player, Arena *arena) {
 			break;
 	}
 
+	ghostFollowTarget(ghost, arena);
 	objectMove(&ghost->pos, &ghost->vel, arena);
 }
 
-void ghostChase(Ghost *ghost, Player *player, Arena *arena) {
+void ghostChase(Ghost *ghost, Player *player) {
 	switch (ghost->type) {
 		case GHOST_TYPE_RED:
-			ghostFollowTarget(ghost, &player->pos, arena);
+			ghost->target = player->pos;
 			break;
 		case GHOST_TYPE_PINK:
 			break;
@@ -32,8 +34,29 @@ void ghostChase(Ghost *ghost, Player *player, Arena *arena) {
 	}
 }
 
+void ghostScatter(Ghost *ghost, Arena *arena) {
+	switch (ghost->type) {
+		case GHOST_TYPE_RED:
+			ghost->target.x = arena->matrix.cols;
+			ghost->target.y = 0;
+			break;
+		case GHOST_TYPE_PINK:
+			ghost->target.x = 0;
+			ghost->target.y = arena->matrix.lines;
+			break;
+		case GHOST_TYPE_CYAN:
+			ghost->target.x = arena->matrix.cols;
+			ghost->target.y = arena->matrix.lines;
+			break;
+		case GHOST_TYPE_ORANGE:
+			ghost->target.x = 0;
+			ghost->target.y = 0;
+			break;
+	}
+}
+
 /// Target system
-void ghostFollowTarget(Ghost *ghost, Vector *target, Arena *arena) {
+void ghostFollowTarget(Ghost *ghost, Arena *arena) {
 	Vector possible_vel[POSSIBLE_VELOCITY_LEN];
 
 	possible_vel[0] = ghost->vel;
@@ -51,8 +74,8 @@ void ghostFollowTarget(Ghost *ghost, Vector *target, Arena *arena) {
 	for (int i = 0; i < POSSIBLE_VELOCITY_LEN; i++) {
 		if (possible_vel[i].x == INVALID_VELOCITY && possible_vel[i].y == INVALID_VELOCITY) continue;
 		float distance =
-			powf(ghost->pos.x + possible_vel[i].x - target->x, 2) +
-			powf(ghost->pos.y + possible_vel[i].y - target->y, 2);
+			powf(ghost->pos.x + possible_vel[i].x - ghost->target.x, 2) +
+			powf(ghost->pos.y + possible_vel[i].y - ghost->target.y, 2);
 
 		if (distance < smallest_distance) {
 			smallest_distance = distance;

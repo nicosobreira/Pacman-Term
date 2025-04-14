@@ -29,14 +29,17 @@ typedef struct Ghost {
 	Vector target;
 	ColorPair color;
 	GhostModes mode;
-	int type;
+	GhostTypes type;
 	char ch;
 } Ghost;
 
+void ghostChase(Ghost *ghost, Player *player);
+void ghostScatter(Ghost *ghost, Arena *arena);
+
 int getVelocityPriority(Vector *vec);
-void ghostChase(Ghost *ghost, Player *player, Arena *arena);
+
 void ghostCheckVelocity(Ghost *ghost, Vector *vel, Arena *arena);
-void ghostFollowTarget(Ghost *ghost, Vector *target, Arena *arena);
+void ghostFollowTarget(Ghost *ghost, Arena *arena);
 void updateGhost(Ghost *, Player *, Arena *);
 
 /* What is a ghost?
@@ -75,7 +78,7 @@ void updateGhost(Ghost *, Player *, Arena *);
  *	Scatter
  *		It will go to the upper right corner
  *	When there are a few points ('.') left he "ignores" Scatter mode and just follow the player.
- * Blue
+ * Cyan
  *	Scatter
  *		It will go to the down right corner
  * Pink
