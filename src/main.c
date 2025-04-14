@@ -59,7 +59,7 @@ void setPositions(Game *pGame);
 Game game = {
 	.player = {
 		.pos = {0, 0},
-		.vel = {0, 1},
+		.vel = {0, 0},
 		.ch = 'o',
 		.color = COLOR_PAIR_YELLOW,
 		.score = 0
@@ -109,6 +109,7 @@ int main(void) {
 		}
 
 		draw(pGame);
+		refresh();
 	}
 	closeGame();
 	return 0;
@@ -144,7 +145,6 @@ void update(Game *pGame) {
 }
 
 void draw(Game *pGame) {
-	erase();
 	if (pGame->is_paused) {
 		drawPause(pGame);
 		return;
@@ -201,6 +201,7 @@ void closeGame() {
 void closeGameDie(int i) { exit(i); }
 
 void drawPause(Game *pGame) {
+	erase();
 	for (int i = 0; i < PAUSE_MESSAGE_LEN; i++) {
 		mvwprintw(
 			pGame->win,
@@ -242,6 +243,7 @@ void inputMenu(int key, Game *pGame) {
 			pGame->is_running = false;
 			break;
 		case 'p':
+			erase();
 			pGame->is_paused = !pGame->is_paused;
 			if (!pGame->is_paused) {
 				previous = getCurrentTime();
