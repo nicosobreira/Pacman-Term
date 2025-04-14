@@ -232,6 +232,7 @@ void setPositions(Game *pGame) {
 }
 
 void restart(Game *pGame) {
+	erase();
 	loadArena(pGame->pArena, ARENA_FILE);
 	setPositions(pGame);
 	playerReset(pGame->pPlayer);
