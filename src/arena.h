@@ -10,7 +10,6 @@
 #define FALLBACK_ARENA_COLS (10)
 #define INIT_MATRIX newMatrixValues(FALLBACK_ARENA_LINES, FALLBACK_ARENA_COLS, fallback_arena_matrix[FALLBACK_ARENA_LINES][FALLBACK_ARENA_COLS])
 
-extern char DRAW_VALUES[4];
 extern char fallback_arena_matrix[FALLBACK_ARENA_LINES][FALLBACK_ARENA_COLS];
 
 typedef struct Arena {
