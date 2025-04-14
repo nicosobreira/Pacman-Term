@@ -38,20 +38,23 @@ typedef struct Game {
 	bool is_winning;
 } Game;
 
-void input(Game *);
-void inputMenu(int key, Game *);
-void update(Game *);
+void input(Game *pGame);
+void inputMenu(int key, Game *pGame);
 
-void draw(Game *);
-void drawPause(Game *);
-void drawScore(Game *);
+void update(Game *pGame);
 
-void initGame(Game *);
+void draw(Game *pGame);
+void drawPause(Game *pGame);
+void drawScore(Game *pGame);
+
 void colorInit(void);
+void initGame(Game *pGame);
+
 void closeGame(void);
-void closeGameDie(int);
-void restart(Game *);
-void setPositions(Game *);
+void closeGameDie(int i);
+
+void restart(Game *pGame);
+void setPositions(Game *pGame);
 
 Game game = {
 	.player = {
@@ -111,6 +114,18 @@ int main(void) {
 	return 0;
 }
 
+void input(Game *pGame) {
+	int key;
+	// Ncurses will send input until wgetch return ERR
+	while ((key = wgetch(pGame->win)) != ERR) {
+		inputMenu(key, pGame);
+
+		if (pGame->is_paused) return;
+
+		inputPlayer(key, pGame->pPlayer, pGame->pArena);
+	}
+}
+
 void update(Game *pGame) {
 	// Update AI
 	updateGhost(&pGame->red, pGame->pPlayer, pGame->pArena);
@@ -128,20 +143,28 @@ void update(Game *pGame) {
 	}
 }
 
-void colorInit() {
-	if (!has_colors()) {
-		handle_error(9, "Your terminal don't support colors");
+void draw(Game *pGame) {
+	erase();
+	if (pGame->is_paused) {
+		drawPause(pGame);
+		return;
 	}
-
-	start_color();
-	if (COLORS < 256) {
-		handle_error(10, "Your terminal don't support 256 colors");
-	}
-
-	use_default_colors();
-	for (int i = 0; i < COLORS; i++) {
-		init_pair(i, i, -1);
-	}
+	drawArena(pGame->win, pGame->pArena);
+	drawObject(
+		pGame->win,
+		&pGame->player.pos,
+		pGame->player.ch,
+		pGame->player.color,
+		pGame->pArena
+	);
+	drawObject(
+		pGame->win,
+		&pGame->red.pos,
+		pGame->red.ch,
+		pGame->red.color,
+		pGame->pArena
+	);
+	drawScore(pGame);
 }
 
 void initGame(Game *pGame) {
@@ -176,30 +199,6 @@ void closeGame() {
 }
 
 void closeGameDie(int i) { exit(i); }
-
-void draw(Game *pGame) {
-	erase();
-	if (pGame->is_paused) {
-		drawPause(pGame);
-		return;
-	}
-	drawArena(pGame->win, pGame->pArena);
-	drawObject(
-		pGame->win,
-		&pGame->player.pos,
-		pGame->player.ch,
-		pGame->player.color,
-		pGame->pArena
-	);
-	drawObject(
-		pGame->win,
-		&pGame->red.pos,
-		pGame->red.ch,
-		pGame->red.color,
-		pGame->pArena
-	);
-	drawScore(pGame);
-}
 
 void drawPause(Game *pGame) {
 	for (int i = 0; i < PAUSE_MESSAGE_LEN; i++) {
@@ -237,18 +236,6 @@ void restart(Game *pGame) {
 	playerReset(pGame->pPlayer);
 }
 
-void input(Game *pGame) {
-	int key;
-	// Ncurses will send input until wgetch return ERR
-	while ((key = wgetch(pGame->win)) != ERR) {
-		inputMenu(key, pGame);
-
-		if (pGame->is_paused) return;
-
-		inputPlayer(key, pGame->pPlayer, pGame->pArena);
-	}
-}
-
 void inputMenu(int key, Game *pGame) {
 	switch (key) {
 		case 'q':
@@ -266,5 +253,21 @@ void inputMenu(int key, Game *pGame) {
 			pGame->is_paused = false;
 			restart(pGame);
 			break;
+	}
+}
+
+void colorInit() {
+	if (!has_colors()) {
+		handle_error(9, "Your terminal don't support colors");
+	}
+
+	start_color();
+	if (COLORS < 256) {
+		handle_error(10, "Your terminal don't support 256 colors");
+	}
+
+	use_default_colors();
+	for (int i = 0; i < COLORS; i++) {
+		init_pair(i, i, -1);
 	}
 }
