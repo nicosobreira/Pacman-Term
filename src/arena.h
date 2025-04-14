@@ -32,11 +32,7 @@ Arena newArenaFile(char *arena_file_name);
 
 void loadArena(Arena *arena, char* arena_file_name);
 
-void drawArena(WINDOW *, Arena *);
-
-void getMaxScore(Arena *arena);
-
-void substituteArena(Arena *arena, int match, int subst);
+void drawArena(WINDOW *win, Arena *);
 
 void setArenaPositions(Arena *arena, Vector *middle);
 

@@ -2,10 +2,6 @@
 
 #include <math.h>
 
-// TODO If the game restart the inside of the ghosts "nest" gets points!
-
-char ARENA_CHARS[] = {' ', '#', '.', 'o'};
-
 // char fallback_arena_matrix[FALLBACK_ARENA_LINES][FALLBACK_ARENA_COLS] = {
 // 	{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
 // 	{'.', '#', '#', '#', '.', '#', '#', '#', '#', '.'},
@@ -117,26 +113,6 @@ int getArenaColorValue(int i, int j, Arena *arena) {
 			return (COLOR_PAIR_YELLOW);
 	}
 	return -1;
-}
-
-void getMaxScore(Arena *arena) {
-	for (int i = 0; i < arena->matrix.lines; i++) {
-		for (int j = 0; j < arena->matrix.cols; j++) {
-			if (getArenaValue(i, j, arena) == POINT) {
-				arena->max_score++;
-			}
-		}
-	}
-}
-
-void substituteArena(Arena *arena, int match, int subst) {
-	for (int i = 0; i < arena->matrix.lines; i++) {
-		for (int j = 0; j < arena->matrix.cols; j++) {
-			if (getArenaValue(i, j, arena) == match) {
-				changeArenaValue(i, j, subst, arena);
-			}
-		}
-	}
 }
 
 char getArenaValue(int i, int j, Arena *arena) {
