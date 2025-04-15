@@ -58,6 +58,7 @@ void loadArena(Arena *arena, const char* arena_file_name) {
 
 	sscanf(buffer, "LINES=%d COLS=%d", &arena->matrix.lines, &arena->matrix.cols);
 	arena->matrix = newMatrix(arena->matrix.lines, arena->matrix.cols);
+	arena->max_score = 0;
 
 	int i = 0, j = 0;
 	char ch;
