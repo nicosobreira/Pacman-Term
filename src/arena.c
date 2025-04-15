@@ -2,6 +2,8 @@
 
 #include <math.h>
 
+#include "error.h"
+
 // char fallback_arena_matrix[FALLBACK_ARENA_LINES][FALLBACK_ARENA_COLS] = {
 // 	{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
 // 	{'.', '#', '#', '#', '.', '#', '#', '#', '#', '.'},
@@ -47,8 +49,7 @@ void loadArena(Arena *arena, const char* arena_file_name) {
 	FILE *arena_file = fopen(arena_path, "r");
 	// Error on open the file, using arena fallback
 	if (arena_file == NULL) {
-		arena->matrix.lines = FALLBACK_ARENA_LINES;
-		arena->matrix.cols = FALLBACK_ARENA_COLS;
+		handle_error(1, "Can't open arena_file_name");
 		return;
 	}
 
