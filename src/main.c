@@ -136,11 +136,10 @@ void update(Game *pGame) {
 	// Update AI
 	updateGhost(&pGame->red, pGame->pPlayer, pGame->pArena);
 
-	// TODO Put the game over logic into ghost.c
-	// Ghost and Player collision, game over
-	if (pGame->red.pos.x == pGame->player.pos.x && pGame->red.pos.y == pGame->player.pos.y) {
+	if (isVectorColliding(pGame->red.pos, pGame->pPlayer->pos)) {
 		restart(pGame);
 	}
+
 	updatePlayer(pGame->pPlayer, pGame->pArena);
 
 	// Player win
@@ -154,6 +153,7 @@ void draw(Game *pGame) {
 		drawPause(pGame);
 		return;
 	}
+
 	drawArena(pGame->win, pGame->pArena);
 	drawObject(
 		pGame->win,

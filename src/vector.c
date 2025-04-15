@@ -27,7 +27,6 @@ void rotateVector180(Vector *rotated, Vector *vec) {
 	rotated->y = -vec->y;
 }
 
-void sumVectors(Vector *vec1, Vector *vec2) {
-	vec1->x += vec2->x;
-	vec1->y += vec2->y;
+bool isVectorColliding(Vector vec_a, Vector vec_b) {
+	return (vec_a.x == vec_b.x && vec_a.y == vec_b.y);
 }
