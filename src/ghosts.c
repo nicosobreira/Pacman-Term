@@ -17,7 +17,9 @@ void updateGhost(Ghost *ghost, Player *player, Arena *arena) {
 	}
 
 	ghostFollowTarget(ghost, arena);
-	objectMove(&ghost->pos, &ghost->vel, arena);
+	ghost->pos.x += ghost->vel.x;
+	ghost->pos.y += ghost->vel.y;
+	// objectMove(&ghost->pos, &ghost->vel, arena);
 }
 
 void ghostChase(Ghost *ghost, Player *player) {
@@ -37,8 +39,8 @@ void ghostChase(Ghost *ghost, Player *player) {
 void ghostScatter(Ghost *ghost, Arena *arena) {
 	switch (ghost->type) {
 		case GHOST_TYPE_RED:
-			ghost->target.x = arena->matrix.cols;
-			ghost->target.y = 0;
+			ghost->target.x = 0 + 1;
+			ghost->target.y = 0 + 1;
 			break;
 		case GHOST_TYPE_PINK:
 			ghost->target.x = 0;
@@ -73,9 +75,11 @@ void ghostFollowTarget(Ghost *ghost, Arena *arena) {
 	int smallest_distance_index = 0;
 	for (int i = 0; i < POSSIBLE_VELOCITY_LEN; i++) {
 		if (possible_vel[i].x == INVALID_VELOCITY && possible_vel[i].y == INVALID_VELOCITY) continue;
-		float distance =
+
+		float distance = sqrtf(
 			powf(ghost->pos.x + possible_vel[i].x - ghost->target.x, 2) +
-			powf(ghost->pos.y + possible_vel[i].y - ghost->target.y, 2);
+			powf(ghost->pos.y + possible_vel[i].y - ghost->target.y, 2)
+		);
 
 		if (distance < smallest_distance) {
 			smallest_distance = distance;
