@@ -3,13 +3,10 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <time.h>
 
 #include "arena.h"
 #include "constants.h"
 #include "ghosts.h"
-#include "graphics.h"
-#include "matrix.h"
 #include "player.h"
 #include "utils.h"
 #include "vector.h"
@@ -18,17 +15,25 @@
 // BUG When the Ghost position goes beyond the arena dimensions the game crash
 // BUG The ghost stays in the "chamber" until the player gets closer
 
-#define ARENA_FILE "maze.txt"
+#define ARENA_FILE "maze-small.txt"
 
 #define PAUSE_MESSAGE_LEN (3)
 
 #define FPS (6.0)
 #define MS_PER_UPDATE (1.0 / FPS)
 
+typedef struct TimeState {
+	double lag;
+	double previous;
+	double current;
+	double delta;
+} TimeState;
+
 typedef struct Game {
 	Arena arena;
 	Player player;
 	Ghost red;
+	TimeState time;
 	Arena *pArena;
 	Player *pPlayer;
 	WINDOW *win;
@@ -57,6 +62,7 @@ void restart(Game *pGame);
 void setPositions(Game *pGame);
 
 Game game = {
+	.time = {0},
 	.player = {
 		.pos = {0, 0},
 		.vel = {0, 0},
@@ -66,9 +72,9 @@ Game game = {
 	},
 	.red = {
 		.pos = {0, 0},
-		.vel = {1, 0},
+		.vel = {0, -1},
 		.target = {0, 0},
-		.mode = GHOST_MODE_CHASE,
+		.mode = GHOST_MODE_SCATTER,
 		.type = GHOST_TYPE_RED,
 		.ch = 'M',
 		.color = COLOR_PAIR_RED
@@ -86,25 +92,24 @@ char *PAUSE_MESSAGE[PAUSE_MESSAGE_LEN] = {
 	"Press Q to Quit"
 };
 
-double lag = .0, previous = .0, current = .0, delta = .0;
 
-/// Game loop
+// Game loop
 int main(void) {
 	initGame(pGame);
-	previous = getCurrentTime();
 
+	pGame->time.previous = getCurrentTime();
 	while (pGame->is_running) {
-		current = getCurrentTime();
-		delta = current - previous;
-		previous = current;
-		lag += delta;
+		pGame->time.current = getCurrentTime();
+		pGame->time.delta = pGame->time.current - pGame->time.previous;
+		pGame->time.previous = pGame->time.current;
+		pGame->time.lag += pGame->time.delta;
 
 		input(pGame);
 
 		if (!pGame->is_paused) {
-			while (lag >= MS_PER_UPDATE) {
+			while (pGame->time.lag >= MS_PER_UPDATE) {
 				update(pGame);
-				lag -= MS_PER_UPDATE;
+				pGame->time.lag -= MS_PER_UPDATE;
 			}
 		}
 
@@ -247,8 +252,8 @@ void inputMenu(int key, Game *pGame) {
 			erase();
 			pGame->is_paused = !pGame->is_paused;
 			if (!pGame->is_paused) {
-				previous = getCurrentTime();
-				lag = 0.0;
+				pGame->time.previous = getCurrentTime();
+				pGame->time.lag = 0.0;
 				flushinp();
 			}
 			break;
