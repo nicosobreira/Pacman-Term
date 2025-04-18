@@ -77,8 +77,12 @@ void loadArena(Arena *arena, const char* arena_file_name) {
 			arena->spawn_ghost.y = i;
 			changeArenaValue(i, j, EMPTY, arena);
 		} else if (ch == POINT) {
-			changeArenaValue(i, j, ch, arena);
+			changeArenaValue(i, j, POINT, arena);
 			arena->max_score++;
+		} else if (ch == SPAWN_GATE) {
+			arena->spawn_gate.x = j;
+			arena->spawn_gate.y = i;
+			changeArenaValue(i, j, SPAWN_GATE, arena);
 		} else {
 			changeArenaValue(i, j, ch, arena);
 		}
@@ -101,6 +105,10 @@ void drawArena(WINDOW *win, Arena *arena) {
 			SET_COLOR_OFF(color);
 		}
 	}
+}
+
+void freeArena(Arena *arena) {
+	freeMatrix(&arena->matrix);
 }
 
 int getArenaColorValue(int i, int j, Arena *arena) {

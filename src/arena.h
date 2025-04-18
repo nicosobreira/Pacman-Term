@@ -14,6 +14,7 @@ extern char fallback_arena_matrix[FALLBACK_ARENA_LINES][FALLBACK_ARENA_COLS];
 
 typedef struct Arena {
 	CharMatrix matrix;
+	Vector spawn_gate;
     Vector pos;
     Vector middle;
 	Vector spawn_player;
@@ -23,12 +24,13 @@ typedef struct Arena {
 
 Arena newArenaFile(const char *arena_file_name);
 void loadArena(Arena *arena, const char* arena_file_name);
+void freeArena(Arena *arena);
 
 int getArenaColorValue(int i, int j, Arena *arena);
 char getArenaValue(int i, int j, Arena *arena);
 void changeArenaValue(int i, int j, char value, Arena *arena);
 
-void drawArena(WINDOW *win, Arena *);
+void drawArena(WINDOW *win, Arena *arena);
 
 void setArenaPositions(Arena *arena, Vector *middle);
 int getBottomArena(Arena *arena);

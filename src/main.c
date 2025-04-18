@@ -12,9 +12,9 @@
 #include "vector.h"
 #include "error.h"
 
-// BUG When the Ghost position goes beyond the arena dimensions the game crash
-// BUG The ghost stays in the "chamber" until the player gets closer
+// TODO: create a copy of arena->matrix.values so I don't reload the full file again
 
+// BUG: When the Ghost position goes beyond the arena dimensions the game crash
 #define ARENA_FILE "maze-small.txt"
 
 #define PAUSE_MESSAGE_LEN (3)
@@ -59,22 +59,21 @@ void closeGame(void);
 void closeGameDie(int i);
 
 void restart(Game *pGame);
-void setPositions(Game *pGame);
 
 Game game = {
 	.time = {0},
 	.player = {
-		.pos = {0, 0},
-		.vel = {0, 0},
+		.pos = {0},
+		.vel = {0},
 		.ch = 'o',
 		.color = COLOR_PAIR_YELLOW,
 		.score = 0
 	},
 	.red = {
-		.pos = {0, 0},
-		.vel = {0, -1},
-		.target = {0, 0},
-		.mode = GHOST_MODE_SCATTER,
+		.pos = {0},
+		.vel = {0},
+		.target = {0},
+		.mode = GHOST_MODE_NONE,
 		.type = GHOST_TYPE_RED,
 		.ch = 'M',
 		.color = COLOR_PAIR_RED
@@ -91,7 +90,6 @@ char *PAUSE_MESSAGE[PAUSE_MESSAGE_LEN] = {
 	"Press R to Restart",
 	"Press Q to Quit"
 };
-
 
 // Game loop
 int main(void) {
@@ -181,6 +179,9 @@ void initGame(Game *pGame) {
 	signal(SIGHUP, closeGameDie);
 
 	pGame->win = initscr();
+	if (pGame->win == NULL) {
+		handle_error(1, "Error on initscr");
+	}
 	pGame->pArena = &pGame->arena;
 	pGame->pPlayer = &pGame->player;
 
@@ -188,18 +189,22 @@ void initGame(Game *pGame) {
 	curs_set(0);
 	cbreak();
 	noecho();
+	nonl();
+
 	keypad(pGame->win, TRUE);
 	nodelay(pGame->win, TRUE);
-	timeout(0);  // ncurses equivalent of VTIME=0
+
+	timeout(0);
 	notimeout(pGame->win, TRUE);
 
 	pGame->arena = newArenaFile(ARENA_FILE);
-	setPositions(pGame);
+	restart(pGame);
 	pGame->is_running = true;
 	pGame->is_paused = false;
 }
 
 void closeGame() {
+	freeArena(game.pArena);
 	endwin();
 }
 
@@ -226,21 +231,15 @@ void drawScore(Game *pGame) {
 	);
 }
 
-void setPositions(Game *pGame) {
+void restart(Game *pGame) {
+	loadArena(pGame->pArena, ARENA_FILE);
+
 	pGame->middle.x = (int)round(COLS / 2.0);
 	pGame->middle.y = (int)round(LINES / 2.0);
 	setArenaPositions(pGame->pArena, &pGame->middle);
-	pGame->player.pos.x = pGame->arena.spawn_player.x;
-	pGame->player.pos.y = pGame->arena.spawn_player.y;
-	pGame->red.pos.x = pGame->arena.spawn_ghost.x;
-	pGame->red.pos.y = pGame->arena.spawn_ghost.y;
-}
 
-void restart(Game *pGame) {
-	erase();
-	loadArena(pGame->pArena, ARENA_FILE);
-	setPositions(pGame);
-	playerReset(pGame->pPlayer);
+	playerReset(pGame->pPlayer, pGame->pArena);
+	ghostReset(&pGame->red, pGame->pArena);
 }
 
 void inputMenu(int key, Game *pGame) {
@@ -253,11 +252,12 @@ void inputMenu(int key, Game *pGame) {
 			pGame->is_paused = !pGame->is_paused;
 			if (!pGame->is_paused) {
 				pGame->time.previous = getCurrentTime();
-				pGame->time.lag = 0.0;
+				pGame->time.lag = .0;
 				flushinp();
 			}
 			break;
 		case 'r':
+			erase();
 			pGame->is_paused = false;
 			restart(pGame);
 			break;

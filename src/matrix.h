@@ -4,7 +4,7 @@
 
 #define MATRIX_DEFAULT_VALUES '0'
 
-typedef struct {
+typedef struct CharMatrix {
 	char **values;
 	int lines;
 	int cols;
@@ -18,8 +18,6 @@ CharMatrix newMatrix(int lines, int cols);
 
 CharMatrix newMatrixValues(int lines, int cols, char values[lines][cols]);
 
-void printMatrixFile(WINDOW *, const char *file_name);
+void freeMatrix(CharMatrix *matrix);
 
-void freeMatrix(CharMatrix *);
-
-void drawMatrix(WINDOW *win, int x, int y, CharMatrix *);
+void drawMatrix(WINDOW *win, int x, int y, CharMatrix *matrix);

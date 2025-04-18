@@ -4,6 +4,9 @@
 
 void updateGhost(Ghost *ghost, Player *player, Arena *arena) {
 	switch (ghost->mode) {
+		case GHOST_MODE_NONE:
+			ghostNone(ghost, arena);
+			break;
 		case GHOST_MODE_CHASE:
 			ghostChase(ghost, player);
 			break;
@@ -13,6 +16,10 @@ void updateGhost(Ghost *ghost, Player *player, Arena *arena) {
 		case GHOST_MODE_FRIGHTENED:
 			break;
 		case GHOST_MODE_EATEN:
+			ghostEaten(ghost, arena);
+			break;
+		case GHOST_MODE_INSIDE_HOUSE:
+			ghostInsideHouse(ghost, arena);
 			break;
 	}
 
@@ -20,6 +27,13 @@ void updateGhost(Ghost *ghost, Player *player, Arena *arena) {
 	ghost->pos.x += ghost->vel.x;
 	ghost->pos.y += ghost->vel.y;
 	// objectMove(&ghost->pos, &ghost->vel, arena);
+}
+
+void ghostNone(Ghost *ghost, Arena *arena) {
+	ghost->mode = GHOST_MODE_INSIDE_HOUSE;
+
+	ghost->target = arena->spawn_gate;
+	return;
 }
 
 void ghostChase(Ghost *ghost, Player *player) {
@@ -38,23 +52,35 @@ void ghostChase(Ghost *ghost, Player *player) {
 
 void ghostScatter(Ghost *ghost, Arena *arena) {
 	switch (ghost->type) {
-		case GHOST_TYPE_RED:
-			ghost->target.x = 0 + 1;
-			ghost->target.y = 0 + 1;
-			break;
-		case GHOST_TYPE_PINK:
-			ghost->target.x = 0;
-			ghost->target.y = arena->matrix.lines;
-			break;
-		case GHOST_TYPE_CYAN:
+		case GHOST_TYPE_RED:	// Top right
 			ghost->target.x = arena->matrix.cols;
-			ghost->target.y = arena->matrix.lines;
+			ghost->target.y = 0;
 			break;
-		case GHOST_TYPE_ORANGE:
+		case GHOST_TYPE_PINK:	// Top left
 			ghost->target.x = 0;
 			ghost->target.y = 0;
 			break;
+		case GHOST_TYPE_CYAN:	// Bottom right
+			ghost->target.x = arena->matrix.cols;
+			ghost->target.y = arena->matrix.lines;
+			break;
+		case GHOST_TYPE_ORANGE:	// Botom left
+			ghost->target.x = 0;
+			ghost->target.y = arena->matrix.lines;
+			break;
 	}
+}
+
+void ghostEaten(Ghost *ghost, Arena *arena) {
+	ghost->target = arena->spawn_gate;
+}
+
+void ghostInsideHouse(Ghost *ghost, Arena *arena) {
+	if (ghost->pos.x == arena->spawn_gate.x && ghost->pos.y == arena->spawn_gate.y) {
+		ghost->mode = GHOST_MODE_CHASE;
+		return;
+	}
+	ghost->target = arena->spawn_gate;
 }
 
 /// Target system
@@ -70,7 +96,7 @@ void ghostFollowTarget(Ghost *ghost, Arena *arena) {
 	rotateVector90CounterClock(&possible_vel[2], &ghost->vel);
 	ghostCheckVelocity(ghost, &possible_vel[2], arena);
 
-	// BUG if the value of INVALID_VELOCITY is smaller than the maximum distance possible in the arena it will occur a bug
+	// BUG: if the value of INVALID_VELOCITY is smaller than the maximum distance possible in the arena it will occur a bug
 	float smallest_distance = 10000000;
 	int smallest_distance_index = 0;
 	for (int i = 0; i < POSSIBLE_VELOCITY_LEN; i++) {
@@ -95,7 +121,18 @@ void ghostFollowTarget(Ghost *ghost, Arena *arena) {
 			}
 		}
 	}
+
 	ghost->vel = possible_vel[smallest_distance_index];
+}
+
+void ghostReset(Ghost *ghost, Arena *arena) {
+	ghost->pos.x = arena->spawn_ghost.x;
+	ghost->pos.y = arena->spawn_ghost.y;
+
+	ghost->vel.x = vectorGetDirectionAxis(arena->spawn_gate.x - ghost->pos.x);
+	ghost->vel.y = vectorGetDirectionAxis(arena->spawn_gate.y - ghost->pos.y);
+
+	ghost->mode = GHOST_MODE_NONE;
 }
 
 void ghostCheckVelocity(Ghost *ghost, Vector *vel, Arena *arena) {
@@ -105,10 +142,10 @@ void ghostCheckVelocity(Ghost *ghost, Vector *vel, Arena *arena) {
 	}
 }
 
-int getVelocityPriority(Vector *vec) {
-	if (vec->x == 0 && vec->y == -1) return 0;	// UP
-	if (vec->x == -1 && vec->y == 0) return 1;	// LEFT
-	if (vec->x == 0 && vec->y == 1) return 2;	// DOWN
-	if (vec->x == 1 && vec->y == 0) return 3;	// RIGHT
+int getVelocityPriority(Vector *velocity) {
+	if (velocity->x == DIRECTION_NONE && velocity->y == DIRECTION_UP) return 0;	// UP
+	if (velocity->x == DIRECTION_LEFT && velocity->y == DIRECTION_NONE) return 1;	// LEFT
+	if (velocity->x == DIRECTION_NONE && velocity->y == DIRECTION_DOWN) return 2;		// DOWN
+	if (velocity->x == DIRECTION_RIGHT && velocity->y == DIRECTION_NONE) return 3;		// RIGHT
 	return 4;
 }

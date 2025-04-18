@@ -6,10 +6,6 @@
 #include "constants.h"
 #include "vector.h"
 
-#define LEFT (-1)
-#define RIGHT (1)
-#define UP (-1)
-#define DOWN (1)
 
 typedef struct Player {
 	Vector pos;
@@ -21,8 +17,8 @@ typedef struct Player {
 
 void drawPlayer(WINDOW *win, Player *player, Arena *arena);
 
-void updatePlayer(Player *, Arena *);
+void updatePlayer(Player *player, Arena *arena);
 
 void inputPlayer(int key, Player *player, Arena *arena);
 
-void playerReset(Player *player);
+void playerReset(Player *player, Arena *arena);

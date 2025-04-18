@@ -17,10 +17,12 @@ typedef enum GhostTypes {
 } GhostTypes;
 
 typedef enum GhostModes {
+	GHOST_MODE_NONE,
 	GHOST_MODE_CHASE,
 	GHOST_MODE_SCATTER,
 	GHOST_MODE_FRIGHTENED,
-	GHOST_MODE_EATEN
+	GHOST_MODE_EATEN,
+	GHOST_MODE_INSIDE_HOUSE
 } GhostModes;
 
 typedef struct Ghost {
@@ -33,14 +35,18 @@ typedef struct Ghost {
 	char ch;
 } Ghost;
 
+void ghostNone(Ghost *ghost, Arena *arena);
 void ghostChase(Ghost *ghost, Player *player);
 void ghostScatter(Ghost *ghost, Arena *arena);
+void ghostEaten(Ghost *ghost, Arena *arena);
+void ghostInsideHouse(Ghost *ghost, Arena *arena);
 
 int getVelocityPriority(Vector *vec);
 
 void ghostCheckVelocity(Ghost *ghost, Vector *vel, Arena *arena);
 void ghostFollowTarget(Ghost *ghost, Arena *arena);
 void updateGhost(Ghost *, Player *, Arena *);
+void ghostReset(Ghost *ghost, Arena *arena);
 
 /* What is a ghost?
  * It's an enemy that follows a *target* (more on that on `Target System`)
