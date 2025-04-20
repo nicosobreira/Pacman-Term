@@ -1,47 +1,21 @@
 #include <math.h>
 #include <ncurses.h>
-#include <signal.h>
+// #include <signal.h>
 #include <stdlib.h>
 #include <unistd.h>
 
+#include "game.h"
 #include "arena.h"
 #include "constants.h"
-#include "ghosts.h"
+#include "ghost.h"
 #include "player.h"
 #include "utils.h"
 #include "vector.h"
 #include "error.h"
+#include "ghost_manager.h"
 
 // TODO: create a copy of arena->matrix.values so I don't reload the full file again
-
 // BUG: When the Ghost position goes beyond the arena dimensions the game crash
-#define ARENA_FILE "maze-small.txt"
-
-#define PAUSE_MESSAGE_LEN (3)
-
-#define FPS (6.0)
-#define MS_PER_UPDATE (1.0 / FPS)
-
-typedef struct TimeState {
-	double lag;
-	double previous;
-	double current;
-	double delta;
-} TimeState;
-
-typedef struct Game {
-	Arena arena;
-	Player player;
-	Ghost red;
-	TimeState time;
-	Arena *pArena;
-	Player *pPlayer;
-	WINDOW *win;
-	Vector middle;
-	bool is_paused;
-	bool is_running;
-	bool is_winning;
-} Game;
 
 void input(Game *pGame);
 void inputMenu(int key, Game *pGame);
@@ -134,10 +108,7 @@ void update(Game *pGame) {
 	// Update AI
 	updateGhost(&pGame->red, pGame->pPlayer, pGame->pArena);
 
-	if (isVectorColliding(pGame->red.pos, pGame->pPlayer->pos)) {
-		restart(pGame);
-	}
-
+	// BUG: Add collision!!!
 	updatePlayer(pGame->pPlayer, pGame->pArena);
 
 	// Player win
@@ -160,32 +131,25 @@ void draw(Game *pGame) {
 		pGame->player.color,
 		pGame->pArena
 	);
-	drawObject(
-		pGame->win,
-		&pGame->red.pos,
-		pGame->red.ch,
-		pGame->red.color,
-		pGame->pArena
-	);
+	// BUG: Add draw function!!!
 	drawScore(pGame);
 }
 
 void initGame(Game *pGame) {
 	// If the games stops or crashes return the terminal
 	atexit(closeGame);
-	signal(SIGTERM, closeGameDie);
-	signal(SIGINT, closeGameDie);
-	signal(SIGSEGV, closeGameDie);
-	signal(SIGHUP, closeGameDie);
+	// signal(SIGTERM, closeGameDie);
+	// signal(SIGINT, closeGameDie);
+	// signal(SIGSEGV, closeGameDie);
+	// signal(SIGHUP, closeGameDie);
 
 	pGame->win = initscr();
 	if (pGame->win == NULL) {
 		handle_error(1, "Error on initscr");
 	}
-	pGame->pArena = &pGame->arena;
-	pGame->pPlayer = &pGame->player;
 
 	colorInit();
+
 	curs_set(0);
 	cbreak();
 	noecho();
@@ -196,6 +160,9 @@ void initGame(Game *pGame) {
 
 	timeout(0);
 	notimeout(pGame->win, TRUE);
+
+	pGame->pArena = &pGame->arena;
+	pGame->pPlayer = &pGame->player;
 
 	pGame->arena = newArenaFile(ARENA_FILE);
 	restart(pGame);

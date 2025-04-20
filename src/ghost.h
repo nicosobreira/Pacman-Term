@@ -7,7 +7,15 @@
 
 #define INVALID_VELOCITY (255)
 #define POSSIBLE_VELOCITY_LEN (3)
-#define GHOSTS_MAX (4)
+#define GHOST_CHAR ('M')
+
+typedef enum GhostVelocityPriority {
+	GHOST_VELOCITY_PRIORITY_UP,
+	GHOST_VELOCITY_PRIORITY_LEFT,
+	GHOST_VELOCITY_PRIORITY_DOWN,
+	GHOST_VELOCITY_PRIORITY_RIGHT,
+	GHOST_VELOCITY_PRIORITY_NONE
+} GhostVelocityPriority;
 
 typedef enum GhostTypes {
 	GHOST_TYPE_RED,
@@ -35,17 +43,19 @@ typedef struct Ghost {
 	char ch;
 } Ghost;
 
+void ghostInit(Ghost *ghost, GhostTypes type);
+
 void ghostNone(Ghost *ghost, Arena *arena);
 void ghostChase(Ghost *ghost, Player *player);
 void ghostScatter(Ghost *ghost, Arena *arena);
 void ghostEaten(Ghost *ghost, Arena *arena);
 void ghostInsideHouse(Ghost *ghost, Arena *arena);
 
-int getVelocityPriority(Vector *vec);
+GhostVelocityPriority getVelocityPriority(Vector *velocity);
 
 void ghostCheckVelocity(Ghost *ghost, Vector *vel, Arena *arena);
 void ghostFollowTarget(Ghost *ghost, Arena *arena);
-void updateGhost(Ghost *, Player *, Arena *);
+void updateGhost(Ghost *ghost, Player *player, Arena *arena);
 void ghostReset(Ghost *ghost, Arena *arena);
 
 /* What is a ghost?
