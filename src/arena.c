@@ -4,6 +4,8 @@
 
 #include "error.h"
 
+// TODO: create a new Arena struct member that keeps track of a copy of the matrix value, for restarting, instead of loading the full file again!
+
 // char fallback_arena_matrix[FALLBACK_ARENA_LINES][FALLBACK_ARENA_COLS] = {
 // 	{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
 // 	{'.', '#', '#', '#', '.', '#', '#', '#', '#', '.'},
@@ -27,127 +29,162 @@
 // Later in code:
 // fallback_arena.matrix = INIT_MATRIX;
 
-Arena newArenaFile(const char *arena_file_name) {
+
+Arena arenaNewFile(const char *arena_file_name) {
 	Arena arena = {
-		.pos = {0, 0},
-		.middle = {0, 0},
-		.spawn_ghost = {0, 0},
-		.spawn_player = {0, 0},
-		.matrix = {0, 0, 0},
+		.spawn_gate = {0},
+		.pos = {0},
+		.middle = {0},
+		.spawn_player = {0},
+		.spawn_ghost = {0},
 		.max_score = 0
 	};
 
-	loadArena(&arena, arena_file_name);
+	arenaLoad(&arena, arena_file_name);
 
 	return arena;
 }
 
-void loadArena(Arena *arena, const char* arena_file_name) {
-	char arena_path[BUFFER_SIZE];
-	snprintf(arena_path, sizeof(arena_path), "%s%s%s", ASSETS_FOLDER, FILE_SEPARATOR, arena_file_name);
+void arenaLoad(Arena *pArena, const char* arenaFileName) {
+	char arenaPath[BUFFER_SIZE];
 
-	FILE *arena_file = fopen(arena_path, "r");
+	// Buffer overflow
+	if((unsigned long)snprintf(arenaPath, sizeof(arenaPath), "%s%s%s", ASSETS_FOLDER, FILE_SEPARATOR, arenaFileName) >= sizeof(arenaPath))
+		HANDLE_ERROR(1, "%s", "Path too long");
+
+	FILE *arenaFile = fopen(arenaPath, "r");
 	// Error on open the file, using arena fallback
-	if (arena_file == NULL) {
-		handle_error(1, "Can't open arena_file_name");
-		return;
-	}
+	if (arenaFile == NULL)
+		HANDLE_ERROR(1, "%s", "Can't open arena_file");
 
 	char buffer[BUFFER_SIZE];
-	fgets(buffer, sizeof(buffer), arena_file);
+	fgets(buffer, sizeof(buffer), arenaFile);
 
-	sscanf(buffer, "LINES=%d COLS=%d", &arena->matrix.lines, &arena->matrix.cols);
-	arena->matrix = newMatrix(arena->matrix.lines, arena->matrix.cols);
-	arena->max_score = 0;
+	sscanf(buffer, "LINES=%d COLS=%d", &pArena->matrix.lines, &pArena->matrix.cols);
+	matrixLoad(&pArena->matrix, pArena->matrix.lines, pArena->matrix.cols);
+	pArena->max_score = 0;
 
 	int i = 0, j = 0;
-	char ch;
-	while ((ch = fgetc(arena_file)) != EOF) {
+	int ch;
+	char changeValue = EMPTY;
+	while ((ch = fgetc(arenaFile)) != EOF) {
 		if (ch == '\n') {
-			j = 0;
+
 			i++;
+
+			if (j != pArena->matrix.cols)
+				HANDLE_ERROR(18, "The number of cols in the line (%d) in the file (%s) doesn't match the total (%d)", i, arenaFileName, pArena->matrix.cols);
+
+			j = 0;
+
+			// TODO: Add error handling for the number of lines
+
+			// The `i` is 0 INDEXED
+			// if (i >= pArena->matrix.lines)
+			// 	HANDLE_ERROR(19, "The number of lines (%d) in the file (%s) doesn't match the total (%d)", i + 1, arenaFileName, pArena->matrix.lines);
+
 			continue;
 		}
-		if (ch == SPAWN_PLAYER) {
-			arena->spawn_player.x = j;
-			arena->spawn_player.y = i;
-			changeArenaValue(i, j, EMPTY, arena);
-		} else if (ch == SPAWN_GHOST) {
-			arena->spawn_ghost.x = j;
-			arena->spawn_ghost.y = i;
-			changeArenaValue(i, j, EMPTY, arena);
-		} else if (ch == POINT) {
-			changeArenaValue(i, j, POINT, arena);
-			arena->max_score++;
-		} else if (ch == SPAWN_GATE) {
-			arena->spawn_gate.x = j;
-			arena->spawn_gate.y = i;
-			changeArenaValue(i, j, SPAWN_GATE, arena);
-		} else {
-			changeArenaValue(i, j, ch, arena);
+
+		switch ((char)ch) {
+			case EMPTY:
+				changeValue = EMPTY;
+				break;
+			case WALL:
+				changeValue = WALL;
+				break;
+			case POINT:
+				changeValue = POINT;
+				pArena->max_score++;
+				break;
+			case SPAWN_PLAYER:
+				pArena->spawn_player.x = j;
+				pArena->spawn_player.y = i;
+				changeValue = EMPTY;
+				break;
+			case SPAWN_GHOST:
+				pArena->spawn_ghost.x = j;
+				pArena->spawn_ghost.y = i;
+				changeValue = EMPTY;
+				break;
+			case SPAWN_GATE:
+				pArena->spawn_gate.x = j;
+				pArena->spawn_gate.y = i;
+				changeValue = SPAWN_GATE;
+				break;
+			default:
+				HANDLE_ERROR(16, "%s", "Unknown char while loading the maze");
+				break;
 		}
+
+		arenaChangeValue(pArena, i, j, changeValue);
 		j++;
 	}
-	fclose(arena_file);
+
+	fclose(arenaFile);
 }
 
-void drawArena(WINDOW *win, Arena *arena) {
+void arenaDraw(WINDOW *win, Arena *arena) {
 	for (int i = 0; i < arena->matrix.lines; i++) {
 		for (int j = 0; j < arena->matrix.cols; j++) {
-			int color = getArenaColorValue(i, j, arena);
+			ColorPair color = arenaGetColorValue(arena, i, j);
 			SET_COLOR_ON(color);
 			mvwaddch(
 				win,
 				i + arena->pos.y,
 				arena->pos.x + j * OFFSET,
-				getArenaValue(i, j, arena)
+				arenaGetValue(arena, i, j)
 			);
 			SET_COLOR_OFF(color);
 		}
 	}
 }
 
-void freeArena(Arena *arena) {
-	freeMatrix(&arena->matrix);
+void arenaFree(Arena *arena) {
+	matrixFree(&arena->matrix);
 }
 
-int getArenaColorValue(int i, int j, Arena *arena) {
-	switch (getArenaValue(i, j, arena)) {
-		case EMPTY:
-			return (COLOR_PAIR_DEFAULT);
+ColorPair arenaGetColorValue(Arena *arena, int i, int j) {
+	switch (arenaGetValue(arena, i, j)) {
 		case WALL:
-			return (COLOR_PAIR_BLUE);
+			return COLOR_PAIR_BLUE;
 		case POINT:
-			return (COLOR_PAIR_ORANGE);
+			return COLOR_PAIR_ORANGE;
+		case EMPTY:
+			return COLOR_PAIR_DEFAULT;
+		case SPAWN_GATE:
+			return COLOR_PAIR_DEFAULT;
 		case POWER_UP:
-			return (COLOR_PAIR_YELLOW);
+			return COLOR_PAIR_YELLOW;
+		default:
+			HANDLE_ERROR(12, "%s", "Unknown arena color value");
 	}
-	return -1;
+	return COLOR_PAIR_DEFAULT;
 }
 
-char getArenaValue(int i, int j, Arena *arena) {
-	return getMatrixValue(i, j, &arena->matrix);
+char arenaGetValue(Arena *arena, int i, int j) {
+	return matrixGetValue(&arena->matrix, i, j);
 }
 
-void changeArenaValue(int i, int j, char value, Arena *arena) {
-	changeMatrixValue(i, j, value, &arena->matrix);
+void arenaChangeValue(Arena *arena, int i, int j, char value) {
+	matrixChangeValue(&arena->matrix, i, j, value);
 }
 
-void setArenaPositions(Arena *arena, Vector *middle) {
+void arenaSetPositions(Arena *arena, Vector *middle) {
 	arena->middle.x = (int)round(arena->matrix.cols / 2.0);
 	arena->middle.y = (int)round(arena->matrix.lines / 2.0);
 	arena->pos.x = middle->x - arena->matrix.cols;
 	arena->pos.y = middle->y - arena->middle.y;
 }
 
-int getBottomArena(Arena *arena) {
+int arenaGetBottom(Arena *arena) {
 	return arena->pos.y + arena->matrix.lines;
 }
 
-int getMiddleXArena(Arena *arena) {
+int arenaGetMiddleX(Arena *arena) {
 	return arena->pos.x + arena->middle.x;
 }
 
-int getMiddleYArena(Arena *arena) {
+int arenaGetMiddleY(Arena *arena) {
 	return arena->pos.y + arena->middle.y;
 }

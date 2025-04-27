@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MATRIX_H
+#define MATRIX_H
 
 #include <ncurses.h>
 
@@ -10,14 +11,17 @@ typedef struct CharMatrix {
 	int cols;
 } CharMatrix;
 
-char getMatrixValue(int i, int j, CharMatrix *matrix);
+void matrixIsIndexOutOfBounds(int i, int j, int lines, int cols);
 
-void changeMatrixValue(int i, int j, char value, CharMatrix *matrix);
+char matrixGetValue(CharMatrix *pMatrix, int i, int j);
+void matrixChangeValue(CharMatrix *pMatrix, int i, int j, char value);
 
-CharMatrix newMatrix(int lines, int cols);
+CharMatrix matrixNew(int lines, int cols);
+
+void matrixLoad(CharMatrix *pMatrix, int lines, int cols);
 
 CharMatrix newMatrixValues(int lines, int cols, char values[lines][cols]);
 
-void freeMatrix(CharMatrix *matrix);
+void matrixFree(CharMatrix *pMatrix);
 
-void drawMatrix(WINDOW *win, int x, int y, CharMatrix *matrix);
+#endif // MATRIX_H

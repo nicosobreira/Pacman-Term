@@ -1,6 +1,8 @@
-#pragma once
+#ifndef OBJECT_H
+#define OBJECT_H
 
 #include <ncurses.h>
+#include <stdbool.h>
 
 #include "vector.h"
 #include "arena.h"
@@ -19,3 +21,5 @@ bool objectCollisionVectorY(Vector *pos, Arena *arena);
 bool objectCollisionVector(Vector *pos, Arena *arena);
 
 void drawObject(WINDOW *win, Vector *pos, char ch, ColorPair color, Arena *arena);
+
+#endif // OBJECT_H

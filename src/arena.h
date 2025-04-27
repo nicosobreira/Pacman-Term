@@ -1,4 +1,6 @@
-#pragma once
+#ifndef ARENA_H
+#define ARENA_H
+
 
 #include <ncurses.h>
 
@@ -22,17 +24,19 @@ typedef struct Arena {
     int max_score;
 } Arena;
 
-Arena newArenaFile(const char *arena_file_name);
-void loadArena(Arena *arena, const char* arena_file_name);
-void freeArena(Arena *arena);
+Arena arenaNewFile(const char *arena_file_name);
+void arenaLoad(Arena *arena, const char* arena_file_name);
+void arenaFree(Arena *arena);
 
-int getArenaColorValue(int i, int j, Arena *arena);
-char getArenaValue(int i, int j, Arena *arena);
-void changeArenaValue(int i, int j, char value, Arena *arena);
+ColorPair arenaGetColorValue(Arena *arena, int i, int j);
+char arenaGetValue(Arena *pArena, int i, int j);
+void arenaChangeValue(Arena *pArena, int i, int j, char value);
 
-void drawArena(WINDOW *win, Arena *arena);
+void arenaDraw(WINDOW *win, Arena *arena);
 
-void setArenaPositions(Arena *arena, Vector *middle);
-int getBottomArena(Arena *arena);
-int getMiddleXArena(Arena *arena);
-int getMiddleYArena(Arena *arena);
+void arenaSetPositions(Arena *arena, Vector *middle);
+int arenaGetBottom(Arena *arena);
+int arenaGetMiddleX(Arena *arena);
+int arenaGetMiddleY(Arena *arena);
+
+#endif // ARENA_H

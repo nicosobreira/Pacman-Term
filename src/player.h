@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PLAYER_H
+#define PLAYER_H
 
 #include <ncurses.h>
 
@@ -6,6 +7,12 @@
 #include "constants.h"
 #include "vector.h"
 
+#define PLAYER_CHAR ('o')
+
+#define PLAYER_CHAR_UP ('v')
+#define PLAYER_CHAR_DOWN ('^')
+#define PLAYER_CHAR_LEFT ('>')
+#define PLAYER_CHAR_RIGHT ('<')
 
 typedef struct Player {
 	Vector pos;
@@ -15,10 +22,14 @@ typedef struct Player {
 	char ch;
 } Player;
 
-void drawPlayer(WINDOW *win, Player *player, Arena *arena);
+void playerInit(Player *pPlayer);
 
-void updatePlayer(Player *player, Arena *arena);
+void playerUpdate(Player *pPlayer, Arena *arena);
 
-void inputPlayer(int key, Player *player, Arena *arena);
+void playerDraw(Player *pPlayer, WINDOW *win, Arena *pArena);
 
-void playerReset(Player *player, Arena *arena);
+void playerInput(Player *pPlayer, int key, Arena *arena);
+
+void playerReset(Player *pPlayer, Arena *arena);
+
+#endif // PLAYER_H

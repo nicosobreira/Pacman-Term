@@ -1,7 +1,9 @@
-#pragma once
+#ifndef GHOST_H
+#define GHOST_H
+
+#include <stdint.h>
 
 #include "arena.h"
-#include "object.h"
 #include "player.h"
 #include "vector.h"
 
@@ -9,29 +11,35 @@
 #define POSSIBLE_VELOCITY_LEN (3)
 #define GHOST_CHAR ('M')
 
-typedef enum GhostVelocityPriority {
+typedef enum GhostVelocityPriority_Values {
 	GHOST_VELOCITY_PRIORITY_UP,
 	GHOST_VELOCITY_PRIORITY_LEFT,
 	GHOST_VELOCITY_PRIORITY_DOWN,
 	GHOST_VELOCITY_PRIORITY_RIGHT,
 	GHOST_VELOCITY_PRIORITY_NONE
-} GhostVelocityPriority;
+} GhostVelocityPriority_Values;
 
-typedef enum GhostTypes {
+typedef uint8_t GhostVelocityPriority;
+
+typedef enum GhostTypes_Values {
 	GHOST_TYPE_RED,
 	GHOST_TYPE_PINK,
 	GHOST_TYPE_CYAN,
 	GHOST_TYPE_ORANGE
-} GhostTypes;
+} GhostTypes_Values;
 
-typedef enum GhostModes {
+typedef uint8_t GhostTypes;
+
+typedef enum GhostModes_Values {
 	GHOST_MODE_NONE,
 	GHOST_MODE_CHASE,
 	GHOST_MODE_SCATTER,
 	GHOST_MODE_FRIGHTENED,
 	GHOST_MODE_EATEN,
 	GHOST_MODE_INSIDE_HOUSE
-} GhostModes;
+} GhostModes_Values;
+
+typedef uint8_t GhostModes;
 
 typedef struct Ghost {
 	Vector pos;
@@ -43,20 +51,23 @@ typedef struct Ghost {
 	char ch;
 } Ghost;
 
-void ghostInit(Ghost *ghost, GhostTypes type);
+void ghostInit(Ghost *pGhost, GhostTypes type);
 
-void ghostNone(Ghost *ghost, Arena *arena);
-void ghostChase(Ghost *ghost, Player *player);
-void ghostScatter(Ghost *ghost, Arena *arena);
-void ghostEaten(Ghost *ghost, Arena *arena);
-void ghostInsideHouse(Ghost *ghost, Arena *arena);
+void ghostNone(Ghost *pGhost, Arena *arena);
+void ghostChase(Ghost *pGhost, Player *player);
+void ghostScatter(Ghost *pGhost, Arena *arena);
+void ghostEaten(Ghost *pGhost, Arena *arena);
+void ghostInsideHouse(Ghost *pGhost, Arena *arena);
+
+void ghostDraw(Ghost *pGhost, WINDOW *win, Arena *pArena);
+char *ghostGetModeString(Ghost *pGhost);
 
 GhostVelocityPriority getVelocityPriority(Vector *velocity);
 
-void ghostCheckVelocity(Ghost *ghost, Vector *vel, Arena *arena);
-void ghostFollowTarget(Ghost *ghost, Arena *arena);
-void updateGhost(Ghost *ghost, Player *player, Arena *arena);
-void ghostReset(Ghost *ghost, Arena *arena);
+void ghostCheckVelocity(Ghost *pGhost, Vector *vel, Arena *arena);
+void ghostFollowTarget(Ghost *pGhost, Arena *arena);
+void updateGhost(Ghost *pGhost, Player *player, Arena *arena);
+void ghostReset(Ghost *pGhost, Arena *arena);
 
 /* What is a ghost?
  * It's an enemy that follows a *target* (more on that on `Target System`)
@@ -104,3 +115,5 @@ void ghostReset(Ghost *ghost, Arena *arena);
  *	Scatter
  *		It will go to the up left corner
  */
+
+#endif // GHOST_H

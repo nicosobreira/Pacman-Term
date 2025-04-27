@@ -1,4 +1,7 @@
-#pragma once
+#ifndef CONSTANTS_H
+#define CONSTANTS_H
+
+#include <stdint.h>
 
 #define BUFFER_SIZE (1024)
 
@@ -50,3 +53,5 @@ typedef enum ColorPair {
 	COLOR_PAIR_ORANGE = 214,
 	COLOR_PAIR_LIGHT_ORANGE = 215
 } ColorPair;
+
+#endif // CONSTANTS_H

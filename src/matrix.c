@@ -1,77 +1,77 @@
 #include "matrix.h"
 
 #include <stdlib.h>
+#include <assert.h>
 
-#include "constants.h"
 #include "error.h"
 
-static void isIndexOutOfBounds(int i, int j, int lines, int cols) {
-	if (j < 0 || j > cols ||
-		i < 0 || i > lines) {
-		handle_error(12, "Matrix value out of bound");
-	}
+void matrixIsIndexOutOfBounds(int i, int j, int lines, int cols) {
+	if (i < 0 || i > lines)
+		HANDLE_ERROR(12, "Matrix lines out of bounds. Lines (%d) should be greater than 0 and less than %d", i, lines);
+	if (j < 0 || j > cols)
+		HANDLE_ERROR(12, "Matrix cols out of bounds. Cols (%d) should be greater than 0 and less than %d", j, cols);
 }
 
-char getMatrixValue(int i, int j, CharMatrix *matrix) {
-	isIndexOutOfBounds(i, j, matrix->lines, matrix->cols);
-	return matrix->values[i][j];
+char matrixGetValue(CharMatrix *pMatrix, int i, int j) {
+	matrixIsIndexOutOfBounds(i, j, pMatrix->lines, pMatrix->cols);
+	return pMatrix->values[i][j];
 }
 
-void changeMatrixValue(int i, int j, char value, CharMatrix *matrix) {
-	isIndexOutOfBounds(i, j, matrix->lines, matrix->cols);
-	matrix->values[i][j] = value;
+void matrixChangeValue(CharMatrix *pMatrix, int i, int j, char value) {
+	matrixIsIndexOutOfBounds(i, j, pMatrix->lines, pMatrix->cols);
+	pMatrix->values[i][j] = value;
 }
 
-CharMatrix newMatrix(int lines, int cols) {
-	CharMatrix matrix = {.values = NULL, .lines = lines, .cols = cols};
-	matrix.values = (char **)malloc(sizeof(char *) * matrix.lines);
-	if (matrix.values == NULL) {
-		handle_error(5, "Matrix values allocation failed");
-	}
+CharMatrix matrixNew(int lines, int cols) {
+	CharMatrix matrix;
 
-	for (int i = 0; i < matrix.lines; i++) {
-		matrix.values[i] = (char *)malloc(sizeof(char) * matrix.cols);
-		if (matrix.values == NULL) {
-			handle_error(5, "Matrix values line allocation failed");
-		}
-		for (int j = 0; j < matrix.cols; j++) {
-			changeMatrixValue(i, j, MATRIX_DEFAULT_VALUES, &matrix);
-		}
-	}
+	matrixLoad(&matrix, lines, cols);
 
 	return matrix;
+}
+
+void matrixLoad(CharMatrix *pMatrix, int lines, int cols) {
+	pMatrix->lines = lines;
+	pMatrix->cols = cols;
+
+	pMatrix->values = (char **)malloc(sizeof(char *) * pMatrix->lines);
+	if (pMatrix->values == NULL) {
+		HANDLE_ERROR(5, "%s", "Matrix values allocation failed");
+	}
+
+	for (int i = 0; i < pMatrix->lines; i++) {
+		pMatrix->values[i] = (char *)malloc(sizeof(char) * pMatrix->cols);
+		if (pMatrix->values == NULL) {
+			HANDLE_ERROR(5, "%s", "Matrix values line allocation failed");
+		}
+		for (int j = 0; j < pMatrix->cols; j++) {
+			matrixChangeValue(pMatrix, i, j, MATRIX_DEFAULT_VALUES);
+		}
+	}
 }
 
 CharMatrix newMatrixValues(int lines, int cols, char values[lines][cols]) {
-	CharMatrix matrix = newMatrix(lines, cols);
+	CharMatrix matrix = matrixNew(lines, cols);
 
 	for (int i = 0; i < lines; i++) {
 		for (int j = 0; i < cols; j++) {
-			changeMatrixValue(i, j, values[i][j], &matrix);
+			matrixChangeValue(&matrix, i, j, values[i][j]);
 		}
 	}
 
 	return matrix;
 }
 
-void drawMatrix(WINDOW *win, int x, int y, CharMatrix *matrix) {
-	for (int i = 0; i < matrix->lines; i++) {
-		for (int j = 0; j < matrix->cols; j++) {
-			mvwaddch(win, y + i, x + j * OFFSET, getMatrixValue(i, j, matrix));
-		}
-	}
-}
-
-void freeMatrix(CharMatrix *matrix) {
-	for (int i = 0; i < matrix->lines; i++) {
-		if (matrix->values[i] == NULL) continue;
-		free(matrix->values[i]);
-		matrix->values[i] = NULL;
+void matrixFree(CharMatrix *pMatrix) {
+	for (int i = 0; i < pMatrix->lines; i++) {
+		if (pMatrix->values[i] == NULL) continue;
+		free(pMatrix->values[i]);
+		pMatrix->values[i] = NULL;
 	}
 
-	matrix->lines = 0;
-	matrix->cols = 0;
+	pMatrix->lines = 0;
+	pMatrix->cols = 0;
 
-	free(matrix->values);
-	matrix->values = NULL;
+	free(pMatrix->values);
+	pMatrix->values = NULL;
 }
