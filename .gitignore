@@ -3,7 +3,9 @@ Session.vim*
 build/*
 test/
 .cache
+compile_commands*
 
+.cache
 # Prerequisites
 *.d
 

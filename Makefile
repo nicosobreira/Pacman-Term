@@ -12,7 +12,7 @@ OBJECT_FILES := $(patsubst $(SOURCE_DIR)/%.c, $(OBJECT_DIR)/%.o, $(SOURCE_FILES)
 CC := gcc
 HFLAGS := -I$(SOURCE_DIR)
 
-CFLAGS := -Wall -Wextra -Wfatal-errors -pedantic -std=c99
+CFLAGS := -Wall -Wextra -Wshadow -Wconversion -Wfloat-equal -Wno-unused-const-variable -Wno-sign-conversion -Wfatal-errors -pedantic -std=c99
 LDFLAGS := -lm -lncurses
 
 RELEASE_CFLAGS := -O3 -march=native -flto -fno-plt -pipe

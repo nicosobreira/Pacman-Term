@@ -2,12 +2,13 @@
 set -eou pipefail
 
 TARGET=$1
+LOCAL_HOST="1234"
 
-sudo apt install gdb gdbserver -y
 
 make
 
-tmux split-window -h -p 40 "gdbserver :12345 ./${TARGET}"
+tmux split-window -h -p 40 "gdbserver :${LOCAL_HOST} ./${TARGET}"
 tmux select-pane -t left
 clear
-gdb -q --tui -x debug.gdb
+
+gdb -ex "target remote :${LOCAL_HOST}" -q --tui
