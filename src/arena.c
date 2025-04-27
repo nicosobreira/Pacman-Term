@@ -49,7 +49,7 @@ void arenaLoad(Arena *pArena, const char* arenaFileName) {
 	char arenaPath[BUFFER_SIZE];
 
 	// Buffer overflow
-	if((unsigned long)snprintf(arenaPath, sizeof(arenaPath), "%s%s%s", ASSETS_FOLDER, FILE_SEPARATOR, arenaFileName) >= sizeof(arenaPath))
+	if(snprintf(arenaPath, sizeof(arenaPath), "%s%s%s", ASSETS_FOLDER, FILE_SEPARATOR, arenaFileName) >= (int)sizeof(arenaPath))
 		HANDLE_ERROR(1, "%s", "Path too long");
 
 	FILE *arenaFile = fopen(arenaPath, "r");
@@ -58,9 +58,12 @@ void arenaLoad(Arena *pArena, const char* arenaFileName) {
 		HANDLE_ERROR(1, "%s", "Can't open arena_file");
 
 	char buffer[BUFFER_SIZE];
-	fgets(buffer, sizeof(buffer), arenaFile);
+	if (fgets(buffer, sizeof(buffer), arenaFile) == NULL)
+		HANDLE_ERROR(1, "Can't read the first line of \"%s\"", arenaPath);
 
-	sscanf(buffer, "LINES=%d COLS=%d", &pArena->matrix.lines, &pArena->matrix.cols);
+	if (sscanf(buffer, "LINES=%d COLS=%d", &pArena->matrix.lines, &pArena->matrix.cols) != 2)
+		HANDLE_ERROR(1, "Can't read the \"LINES=\" and \"COLS=\" in the first line of the file \"%s\"", arenaPath);
+
 	matrixLoad(&pArena->matrix, pArena->matrix.lines, pArena->matrix.cols);
 	pArena->max_score = 0;
 
