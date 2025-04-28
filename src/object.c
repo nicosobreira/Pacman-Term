@@ -1,28 +1,38 @@
 #include "object.h"
 
-void objectMove(Vector *position, Vector *velocity, Arena *arena) {
-	position->x += velocity->x;
-	char arena_vector_position = arenaGetValue(arena, position->y, position->x);
-	if (position->x >= arena->matrix.cols) {
-		position->x = 0;
-	} else if (position->x <= 0) {
-		position->x = arena->matrix.cols - 1;
-	} else if (arena_vector_position == WALL || arena_vector_position == SPAWN_GATE) {
-		position->x -= velocity->x;
+void objectMove(Vector *pPosition, Vector *pVelocity, Arena *pArena) {
+	pPosition->x += pVelocity->x;
+	char arena_vector_position = arenaGetValue(pArena, pPosition->y, pPosition->x);
+	if (arena_vector_position == WALL || arena_vector_position == SPAWN_GATE)
+	{
+		pPosition->x -= pVelocity->x;
+	}
+	else if (pPosition->x >= pArena->matrix.cols)
+	{
+		pPosition->x = 0;
+	}
+	else if (pPosition->x <= 0)
+	{
+		pPosition->x = pArena->matrix.cols - 1;
 	}
 
-	position->y += velocity->y;
-	arena_vector_position = arenaGetValue(arena, position->y, position->x);
-	if (position->y >= arena->matrix.lines) {
-		position->y = 0;
-	} else if (position->y < 0) {
-		position->y = arena->matrix.lines;
-	} else if (arena_vector_position == WALL || arena_vector_position == SPAWN_GATE) {
-		position->y -= velocity->y;
+	pPosition->y += pVelocity->y;
+	arena_vector_position = arenaGetValue(pArena, pPosition->y, pPosition->x);
+	if (arena_vector_position == WALL || arena_vector_position == SPAWN_GATE)
+	{
+		pPosition->y -= pVelocity->y;
+	}
+	else if (pPosition->y >= pArena->matrix.lines)
+	{
+		pPosition->y = 0;
+	}
+	else if (pPosition->y < 0)
+	{
+		pPosition->y = pArena->matrix.lines;
 	}
 }
 
-bool objectCollisionX(int x, int y, Arena *arena) {
+bool objectCollisionX(int32_t x, int32_t y, Arena *arena) {
 	if (x >= arena->matrix.cols ||
 		x <= 0 ||
 		arenaGetValue(arena, y, x) == WALL) {
@@ -31,7 +41,7 @@ bool objectCollisionX(int x, int y, Arena *arena) {
 	return false;
 }
 
-bool objectCollisionY(int x, int y, Arena *pArena) {
+bool objectCollisionY(int32_t x, int32_t y, Arena *pArena) {
 	if (y >= pArena->matrix.lines ||
 		y <= 0 ||
 		arenaGetValue(pArena, y, x) == WALL) {
@@ -40,7 +50,7 @@ bool objectCollisionY(int x, int y, Arena *pArena) {
 	return false;
 }
 
-bool objectCollision(int x, int y, Arena *arena) {
+bool objectCollision(int32_t x, int32_t y, Arena *arena) {
 	if (objectCollisionX(x, y, arena) || objectCollisionY(x, y, arena)) {
 		return true;
 	}

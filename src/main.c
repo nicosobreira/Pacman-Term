@@ -3,6 +3,7 @@
 #include "game.h"
 
 // BUG: When the Ghost position goes beyond the arena dimensions the game crash
+
 // TODO: I MUST correct the ghost change mode behavior
 
 /* How to do the ghost manager system
@@ -18,7 +19,8 @@ int main(void) {
 	gameInit(pGame);
 
 	game.time.previous = getCurrentTime();
-	while (game.is_running) {
+
+	while (game.gameState != GAME_STATE_STOP) {
 		game.time.current = getCurrentTime();
 		game.time.delta = game.time.current - game.time.previous;
 		game.time.previous = game.time.current;
@@ -26,7 +28,7 @@ int main(void) {
 
 		gameInput(pGame);
 
-		if (!game.is_paused) {
+		if (game.gameState != GAME_STATE_PAUSE) {
 			while (game.time.lag >= MS_PER_UPDATE) {
 				gameUpdate(pGame);
 				game.time.lag -= MS_PER_UPDATE;
@@ -35,5 +37,6 @@ int main(void) {
 
 		gameDraw(pGame);
 	}
+
 	gameClose();
 }

@@ -3,17 +3,18 @@
 
 #include <ncurses.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 #include "vector.h"
 #include "arena.h"
 #include "constants.h"
 
-void objectMove(Vector *position, Vector *velocity, Arena *arena);
+void objectMove(Vector *pPosition, Vector *pVelocity, Arena *pArena);
 
-bool objectCollisionX(int x, int y, Arena *arena);
-bool objectCollisionY(int x, int y, Arena *arena);
+bool objectCollisionX(int32_t x, int32_t y, Arena *arena);
+bool objectCollisionY(int32_t x, int32_t y, Arena *arena);
 
-bool objectCollision(int x, int y, Arena *arena);
+bool objectCollision(int32_t x, int32_t y, Arena *arena);
 
 bool objectCollisionVectorX(Vector *pos, Arena *arena);
 bool objectCollisionVectorY(Vector *pos, Arena *arena);

@@ -7,12 +7,6 @@
 
 #include "error.h"
 
-const char *PAUSE_MESSAGE[PAUSE_MESSAGE_LEN] = {
-	"Paused",
-	"Press R to Restart",
-	"Press Q to Quit"
-};
-
 void gameInit(Game *pGame) {
 	atexit(gameClose);
 	signal(SIGTERM, gameCloseDie);
@@ -20,12 +14,7 @@ void gameInit(Game *pGame) {
 	signal(SIGSEGV, gameCloseDie);
 	signal(SIGHUP, gameCloseDie);
 
-	*pGame = (Game){
-		.time = {0},
-		.is_paused = false,
-		.is_running = true,
-		.is_winning = false
-	};
+	pGame->gameState = GAME_STATE_RUN;
 
 	pGame->win = initscr();
 	if (pGame->win == NULL) {
@@ -58,6 +47,7 @@ void gameInit(Game *pGame) {
 }
 
 void gameRestart(Game *pGame) {
+	werase(pGame->win);
 	arenaLoad(pGame->pArena, ARENA_FILE);
 
 	pGame->middle.x = (int)round(COLS / 2.0);
@@ -74,7 +64,7 @@ void gameInput(Game *pGame) {
 	while ((key = wgetch(pGame->win)) != ERR) {
 		gameInputMenu(pGame, key);
 
-		if (pGame->is_paused) return;
+		if (pGame->gameState == GAME_STATE_PAUSE) return;
 
 		playerInput(pGame->pPlayer, key, pGame->pArena);
 	}
@@ -94,7 +84,7 @@ void gameUpdate(Game *pGame) {
 }
 
 void gameDraw(Game *pGame) {
-	if (pGame->is_paused) {
+	if (pGame->gameState == GAME_STATE_PAUSE) {
 		gameDrawPause(pGame);
 		return;
 	}
@@ -117,13 +107,19 @@ void gameCloseDie(int i) {
 }
 
 void gameDrawPause(Game *pGame) {
-	clear();
+	static const char *pause_messages[PAUSE_MESSAGE_LEN] = {
+		"Paused",
+		"Press R to Restart",
+		"Press Q to Quit"
+	};
+
+	wclear(pGame->win);
 	for (int i = 0; i < PAUSE_MESSAGE_LEN; i++) {
 		mvwprintw(
 			pGame->win,
 			arenaGetMiddleY(pGame->pArena) + i,
 			arenaGetMiddleX(pGame->pArena),
-			"%s", PAUSE_MESSAGE[i]
+			"%s", pause_messages[i]
 		);
 	}
 }
@@ -141,20 +137,21 @@ void gameDrawScore(Game *pGame) {
 void gameInputMenu(Game *pGame, int key) {
 	switch (key) {
 		case 'q':
-			pGame->is_running = false;
+			pGame->gameState = GAME_STATE_STOP;
 			break;
 		case 'p':
-			clear();
-			pGame->is_paused = !pGame->is_paused;
-			if (!pGame->is_paused) {
-				pGame->time.previous = getCurrentTime();
-				pGame->time.lag = .0;
-				flushinp();
+			wclear(pGame->win);
+			if (pGame->gameState != GAME_STATE_PAUSE) {
+				pGame->gameState = GAME_STATE_PAUSE;
+				break;
 			}
+			pGame->gameState = GAME_STATE_RUN;
+			pGame->time.previous = getCurrentTime();
+			pGame->time.lag = .0;
+			flushinp();
 			break;
 		case 'r':
-			clear();
-			pGame->is_paused = false;
+			pGame->gameState = GAME_STATE_RUN;
 			gameRestart(pGame);
 			break;
 	}

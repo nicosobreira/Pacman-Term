@@ -1,6 +1,8 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include <stdint.h>
+
 #include "arena.h"
 #include "player.h"
 #include "ghost_manager.h"
@@ -13,6 +15,15 @@
 #define FPS (6.0)
 #define MS_PER_UPDATE (1.0 / FPS)
 
+typedef enum GameState_Values {
+	GAME_STATE_RUN,
+	GAME_STATE_STOP,
+	GAME_STATE_PAUSE,
+	GAME_STATE_WIN
+} GameState_Values;
+
+typedef uint8_t GameState;
+
 typedef struct Game {
 	GhostManager ghostManager;
 	Arena arena;
@@ -23,9 +34,7 @@ typedef struct Game {
 	Player *pPlayer;
 	WINDOW *win;
 	Vector middle;
-	bool is_paused;
-	bool is_running;
-	bool is_winning;
+	GameState gameState;
 } Game;
 
 void gameInit(Game *pGame);

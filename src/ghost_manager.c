@@ -10,6 +10,8 @@
 
 // BUG: sometimes the ghost target becomes the spawn
 
+// BUG: The ghostManagerChangeMode keeps changing when PAUSE
+
 void ghostManagerChangeMode(GhostManager *pGhostManager, TimeState *pTime) {
 	if (pTime->current - pGhostManager->last_ai_update < 5.0)
 		return;
